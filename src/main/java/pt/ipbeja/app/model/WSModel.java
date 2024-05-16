@@ -1,6 +1,9 @@
 package pt.ipbeja.app.model;
 
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,12 +21,19 @@ public class WSModel {
     private final List<List<String>> lettersGrid;
     private WSView wsView;
 
-    public WSModel(String boardContent) {
+    public WSModel(String filePath) {
         this.lettersGrid = new ArrayList<>();
-        lettersGrid.add(new ArrayList<>());
-        for(char c : boardContent.toCharArray()) {
-            if (c == '\n') lettersGrid.add(new ArrayList<>());
-            else lettersGrid.get(lettersGrid.size() - 1).add(c + "");
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                List<String> row = new ArrayList<>();
+                for (char c : line.toCharArray()) {
+                    row.add(String.valueOf(c));
+                }
+                lettersGrid.add(row);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

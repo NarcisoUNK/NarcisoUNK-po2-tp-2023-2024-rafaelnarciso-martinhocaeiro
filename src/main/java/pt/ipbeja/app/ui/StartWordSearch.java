@@ -15,16 +15,7 @@ public class StartWordSearch extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        final String boardContent =
-                """
-                CASAIAED
-                FFWFMERW
-                WIQFELAA
-                OFLFESFI
-                EFFAFFPP""";
-
-        WSModel WSModel = new WSModel(boardContent);
-
+        WSModel WSModel = new WSModel("C:/Users/Narciso/Desktop/po2/TrabPO2/src/main/java/pt/ipbeja/app/text");
         WSBoard WSBoard = new WSBoard(WSModel);
         primaryStage.setScene(new Scene(WSBoard));
 

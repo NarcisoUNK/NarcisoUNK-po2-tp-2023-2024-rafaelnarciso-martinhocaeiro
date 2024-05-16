@@ -42,6 +42,8 @@ public class WSBoard extends GridPane implements WSView {
                 Button button = new Button(textForButton);
                 button.setMinWidth(SQUARE_SIZE);
                 button.setMinHeight(SQUARE_SIZE);
+                button.setOnAction(event -> button.setStyle("-fx-background-color: yellow"));
+
                 this.add(button, col, line); // add button to GridPane
             }
         }
