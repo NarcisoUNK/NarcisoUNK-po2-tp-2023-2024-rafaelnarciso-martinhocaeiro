@@ -1,11 +1,12 @@
 package pt.ipbeja.app.model;
 
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Game model
@@ -14,28 +15,112 @@ import java.util.List;
  */
 public class WSModel {
 
-
-    // The following matrix could also be List<List<Character>>
-    // for a more complex game, it should be a List<List<Cell>>
-    // where Letter is a class with the letter and other attributes
     private final List<List<String>> lettersGrid;
     private WSView wsView;
+    private final int BOARD_SIZE = 10; // Tamanho do tabuleiro
+
 
     public WSModel(String filePath) {
         this.lettersGrid = new ArrayList<>();
+        initializeGrid();
+        readWordsFromFile(filePath);
+        fillRemainingPositionsRandomly();
+    }
+
+    private void initializeGrid() {
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            List<String> row = new ArrayList<>();
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                row.add(null); // Inicializa o tabuleiro com espaços vazios
+            }
+            lettersGrid.add(row);
+        }
+    }
+
+    private void readWordsFromFile(String filePath) {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            List<String> words = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
-                List<String> row = new ArrayList<>();
-                for (char c : line.toCharArray()) {
-                    row.add(String.valueOf(c));
-                }
-                lettersGrid.add(row);
+                words.add(line);
             }
+            Collections.shuffle(words); // Embaralha as palavras
+            distributeWordsOnBoard(words);
+            fillRemainingPositionsRandomly();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    private void distributeWordsOnBoard(List<String> words) {
+        Random random = new Random();
+        for (String word : words) {
+            placeWordOnBoard(word, random);
+        }
+    }
+
+    private void placeWordOnBoard(String word, Random random) {
+        boolean placed = false;
+        while (!placed) {
+            boolean horizontal = random.nextBoolean(); // Determina aleatoriamente a orientação da palavra
+            int startX = random.nextInt(BOARD_SIZE); // Início da distribuição de palavras na horizontal
+            int startY = random.nextInt(BOARD_SIZE); // Início da distribuição de palavras na vertical
+            int wordLength = word.length();
+            if (canPlaceWordAtPosition(word, startX, startY, horizontal)) {
+                distributeWord(word, startX, startY, horizontal);
+                placed = true;
+            }
+        }
+    }
+
+    private boolean canPlaceWordAtPosition(String word, int startX, int startY, boolean horizontal) {
+        int wordLength = word.length();
+        if ((horizontal && startX + wordLength <= BOARD_SIZE) || (!horizontal && startY + wordLength <= BOARD_SIZE)) {
+            for (int j = 0; j < wordLength; j++) {
+                int row = horizontal ? startY : startY + j;
+                int col = horizontal ? startX + j : startX;
+                if (lettersGrid.get(row).get(col) != null) {
+                    return false; // Há sobreposição com outra palavra
+                }
+            }
+            return true; // Não há sobreposição, a palavra pode ser colocada nesta posição
+        }
+        return false; // A palavra não cabe na posição atual do tabuleiro
+    }
+
+    private void distributeWord(String word, int startX, int startY, boolean horizontal) {
+        int wordLength = word.length();
+        for (int j = 0; j < wordLength; j++) {
+            int row = horizontal ? startY : startY + j;
+            int col = horizontal ? startX + j : startX;
+            lettersGrid.get(row).set(col, String.valueOf(word.charAt(j)));
+        }
+    }
+
+
+
+
+
+
+
+
+    private void fillRemainingPositionsRandomly() {
+        Random random = new Random();
+        char[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                if (lettersGrid.get(i).get(j) == null) {
+                    lettersGrid.get(i).set(j, String.valueOf(alphabet[random.nextInt(26)]));
+                }
+            }
+        }
+    }
+
+
+
+
+
+
 
     public int nLines() { return this.lettersGrid.size(); }
     public int nCols() { return this.lettersGrid.get(0).size(); }
@@ -44,42 +129,33 @@ public class WSModel {
         this.wsView = wsView;
     }
 
-    /**
-     * Get the text.txt in a position
-     * @param position  position
-     * @return  the text.txt in the position
-     */
     public String textInPosition(Position position) {
         return this.lettersGrid.get(position.line()).get(position.col());
     }
 
-
-    /**
-     * Check if all words were found
-     * @return  true if all words were found
-     */
     public boolean allWordsWereFound() {
-        // TODO: implement this method
-        return true;
+        // Implementação do método para verificar se todas as palavras foram encontradas
+        // Deve retornar true se todas as palavras foram encontradas, caso contrário, false
+        return false; // Modifique conforme necessário
     }
 
-    /**
-     * Check if the word is in the board
-     * @param word
-     * @return true if the word is in the board
-     */
     public String wordFound(String word) {
-        // TODO implement this method
-        return word;
+        // Implementação do método para verificar se a palavra foi encontrada
+        // Deve retornar a palavra encontrada ou null se não foi encontrada
+        return null; // Modifique conforme necessário
     }
 
-    /**
-     * Check if the word with wildcard is in the board
-     * @param word
-     * @return  true if the word with wildcard is in the board
-     */
     public String wordWithWildcardFound(String word) {
-        // TODO implement this method
-        return word;
+        // Implementação do método para verificar se a palavra com coringa foi encontrada
+        // Deve retornar a palavra encontrada ou null se não foi encontrada
+        return null; // Modifique conforme necessário
     }
+
+
+
+
+
+
+
+
 }

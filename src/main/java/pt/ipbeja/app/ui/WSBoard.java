@@ -67,6 +67,17 @@ public class WSBoard extends GridPane implements WSView {
         assert(false); // must not happen
         return null;
     }
+    private boolean checkWordButtons(String word) {
+        for (int line = 0; line < this.wsModel.nLines(); line++) {
+            for (int col = 0; col < this.wsModel.nCols(); col++) {
+                Button button = getButton(line, col);
+                if (button.getId().equals(word) && !button.getStyle().contains("-fx-background-color: green")) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
     /**
      * Simply updates the text.txt for the buttons in the received positions
