@@ -1,5 +1,7 @@
 package pt.ipbeja.app.model;
 
+import javafx.scene.control.Button;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -153,7 +155,26 @@ public class WSModel {
 
 
 
+    public boolean isFirstAndLastOfWord(Position firstPosition, Position lastPosition) {
+        int minRow = Math.min(firstPosition.line(), lastPosition.line());
+        int maxRow = Math.max(firstPosition.line(), lastPosition.line());
+        int minCol = Math.min(firstPosition.col(), lastPosition.col());
+        int maxCol = Math.max(firstPosition.col(), lastPosition.col());
 
+        // Verifica se as letras clicadas estão na mesma linha ou coluna
+        if (minRow == maxRow || minCol == maxCol) {
+            for (int row = minRow; row <= maxRow; row++) {
+                for (int col = minCol; col <= maxCol; col++) {
+                    if (textInPosition(new Position(row, col)) == null) {
+                        return false; // Se houver espaços em branco entre as letras, não é o início e o fim de uma palavra
+                    }
+                }
+            }
+            return true;
+        }
+
+        return false;
+    }
 
 
 

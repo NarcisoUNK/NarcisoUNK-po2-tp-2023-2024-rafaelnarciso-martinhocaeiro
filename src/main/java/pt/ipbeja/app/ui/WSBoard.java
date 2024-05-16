@@ -1,8 +1,5 @@
 package pt.ipbeja.app.ui;
 
-
-import javafx.collections.ObservableList;
-import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
@@ -11,15 +8,20 @@ import pt.ipbeja.app.model.Position;
 import pt.ipbeja.app.model.WSModel;
 import pt.ipbeja.app.model.WSView;
 
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Game interface. Just a GridPane of buttons. No images. No menu.
+ *
  * @author anonymized
  * @version 2024/04/14
  */
 public class WSBoard extends GridPane implements WSView {
     private final WSModel wsModel;
     private static final int SQUARE_SIZE = 80;
+    private Button firstButtonClicked;
+    private Button secondButtonClicked;
 
     /**
      * Create a board with letters
@@ -38,12 +40,7 @@ public class WSBoard extends GridPane implements WSView {
         // create one label for each position
         for (int line = 0; line < this.wsModel.nLines(); line++) {
             for (int col = 0; col < this.wsModel.nCols(); col++) {
-                String textForButton = this.wsModel.textInPosition(new Position(line, col));
-                Button button = new Button(textForButton);
-                button.setMinWidth(SQUARE_SIZE);
-                button.setMinHeight(SQUARE_SIZE);
-                button.setOnAction(event -> button.setStyle("-fx-background-color: yellow"));
-
+                Button button = createButton(line, col);
                 this.add(button, col, line); // add button to GridPane
             }
         }
@@ -51,36 +48,80 @@ public class WSBoard extends GridPane implements WSView {
     }
 
     /**
-     * Can be optimized using an additional matrix with all the buttons
-     * @param line line of label in board
-     * @param col column of label in board
-     * @return the button at line, col
+     * Creates a button with a specific line and column
+     *
+     * @param line the line of the button
+     * @param col  the column of the button
+     * @return the created button
      */
-    public Button getButton(int line, int col) {
-        ObservableList<Node> children = this.getChildren();
-        for (Node node : children) {
-            if(GridPane.getRowIndex(node) == line && GridPane.getColumnIndex(node) == col) {
-                assert(node.getClass() == Button.class);
-                return (Button)node;
-            }
-        }
-        assert(false); // must not happen
-        return null;
-    }
-    private boolean checkWordButtons(String word) {
-        for (int line = 0; line < this.wsModel.nLines(); line++) {
-            for (int col = 0; col < this.wsModel.nCols(); col++) {
-                Button button = getButton(line, col);
-                if (button.getId().equals(word) && !button.getStyle().contains("-fx-background-color: green")) {
-                    return false;
-                }
-            }
-        }
-        return true;
+    private Button createButton(int line, int col) {
+        String textForButton = this.wsModel.textInPosition(new Position(line, col));
+        Button button = new Button(textForButton);
+        button.setMinWidth(SQUARE_SIZE);
+        button.setMinHeight(SQUARE_SIZE);
+        button.setOnAction(event -> handleButtonClick(button));
+
+        return button;
     }
 
     /**
-     * Simply updates the text.txt for the buttons in the received positions
+     * Handles the button click event
+     *
+     * @param button the clicked button
+     */
+    private void handleButtonClick(Button button) {
+        // Se for o primeiro clique ou o mesmo botão for clicado novamente, define-o como amarelo
+        if (firstButtonClicked == null || button == firstButtonClicked) {
+            firstButtonClicked = button;
+            firstButtonClicked.setStyle("-fx-background-color: yellow");
+            return;
+        }
+
+        // Se for o segundo clique em um botão diferente
+        secondButtonClicked = button;
+
+        // Get the positions of the buttons
+        Position firstPosition = getPositionOfButton(firstButtonClicked);
+        Position secondPosition = getPositionOfButton(secondButtonClicked);
+
+        // Check if the positions correspond to the beginning and end of a word
+        if (wsModel.isFirstAndLastOfWord(firstPosition, secondPosition)) {
+            highlightWord(firstButtonClicked, secondButtonClicked);
+        } else {
+            // Reset the first button style to normal
+            firstButtonClicked.setStyle("");
+        }
+
+        // Reset the first and second button references
+        firstButtonClicked = null;
+        secondButtonClicked = null;
+    }
+
+    /**
+     * Get the position of a button
+     *
+     * @param button the button
+     * @return the position of the button
+     */
+    private Position getPositionOfButton(Button button) {
+        int row = GridPane.getRowIndex(button);
+        int col = GridPane.getColumnIndex(button);
+        return new Position(row, col);
+    }
+
+    /**
+     * Highlights the word in the UI by changing the background color
+     *
+     * @param firstButton  the button of the first letter
+     * @param secondButton the button of the last letter
+     */
+    private void highlightWord(Button firstButton, Button secondButton) {
+        firstButton.setStyle("-fx-background-color: lightgreen");
+        secondButton.setStyle("-fx-background-color: lightgreen");
+    }
+
+    /**
+     * Simply updates the text for the buttons in the received positions
      *
      * @param messageToUI the WS model
      */
@@ -88,7 +129,9 @@ public class WSBoard extends GridPane implements WSView {
     public void update(MessageToUI messageToUI) {
         for (Position p : messageToUI.positions()) {
             String s = this.wsModel.textInPosition(p);
-            this.getButton(p.line(), p.col()).setText(s);
+            Button button = getButton(p.line(), p.col());
+            button.setText(s);
+            button.setStyle(""); // Reset button style
         }
         if (this.wsModel.allWordsWereFound()) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -98,5 +141,16 @@ public class WSBoard extends GridPane implements WSView {
             alert.showAndWait();
             System.exit(0);
         }
+    }
+
+    /**
+     * Can be optimized using an additional matrix with all the buttons
+     *
+     * @param line line of label in board
+     * @param col  column of label in board
+     * @return the button at line, col
+     */
+    public Button getButton(int line, int col) {
+        return (Button) this.getChildren().get(line * wsModel.nCols() + col);
     }
 }
