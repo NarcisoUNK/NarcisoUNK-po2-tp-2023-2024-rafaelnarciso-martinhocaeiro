@@ -18,8 +18,8 @@ public class StartWordSearch extends Application {
     public void start(Stage primaryStage) {
 
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Text File");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
+        fileChooser.setTitle("Selecione um ficheiro");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Ficheiros de texto", "*.txt"));
 
         File selectedFile = fileChooser.showOpenDialog(primaryStage);
 
