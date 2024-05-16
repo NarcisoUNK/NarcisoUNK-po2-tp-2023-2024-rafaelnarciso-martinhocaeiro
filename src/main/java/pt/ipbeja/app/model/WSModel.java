@@ -45,9 +45,9 @@ public class WSModel {
     }
 
     /**
-     * Get the text in a position
+     * Get the text.txt in a position
      * @param position  position
-     * @return  the text in the position
+     * @return  the text.txt in the position
      */
     public String textInPosition(Position position) {
         return this.lettersGrid.get(position.line()).get(position.col());

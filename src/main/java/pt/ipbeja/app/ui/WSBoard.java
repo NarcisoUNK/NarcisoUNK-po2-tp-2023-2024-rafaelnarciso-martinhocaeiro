@@ -69,7 +69,7 @@ public class WSBoard extends GridPane implements WSView {
     }
 
     /**
-     * Simply updates the text for the buttons in the received positions
+     * Simply updates the text.txt for the buttons in the received positions
      *
      * @param messageToUI the WS model
      */

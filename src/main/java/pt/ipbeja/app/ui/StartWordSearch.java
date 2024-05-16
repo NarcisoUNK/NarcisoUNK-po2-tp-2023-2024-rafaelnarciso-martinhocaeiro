@@ -2,12 +2,14 @@ package pt.ipbeja.app.ui;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import pt.ipbeja.app.model.WSModel;
 
+import java.io.File;
+
 /**
  * Start a game with a hardcoded board
- * @author anonymized
  * @version 2024/04/14
  */
 public class StartWordSearch extends Application {
@@ -15,17 +17,29 @@ public class StartWordSearch extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        WSModel WSModel = new WSModel("C:/Users/Narciso/Desktop/po2/TrabPO2/src/main/java/pt/ipbeja/app/text");
-        WSBoard WSBoard = new WSBoard(WSModel);
-        primaryStage.setScene(new Scene(WSBoard));
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Text File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
 
-        WSModel.registerView(WSBoard);
-        WSBoard.requestFocus(); // to remove focus from first button
-        primaryStage.show();
+        File selectedFile = fileChooser.showOpenDialog(primaryStage);
+
+        if (selectedFile != null) {
+            WSModel WSModel = new WSModel(selectedFile.getAbsolutePath());
+            WSBoard WSBoard = new WSBoard(WSModel);
+            primaryStage.setScene(new Scene(WSBoard));
+
+            WSModel.registerView(WSBoard);
+            WSBoard.requestFocus(); // to remove focus from first button
+            primaryStage.show();
+        } else {
+            // Handle the case where no file was selected (optional)
+            System.out.println("No file selected");
+            primaryStage.close();
+        }
     }
 
     /**
-     * @param args  not used
+     * @param args not used
      */
     public static void main(String[] args) {
         Application.launch(args);
