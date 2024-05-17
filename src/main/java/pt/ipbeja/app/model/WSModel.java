@@ -148,8 +148,13 @@ public class WSModel {
     public String wordFound(String word) {
         // Implementação do método para verificar se a palavra foi encontrada
         // Deve retornar a palavra encontrada ou null se não foi encontrada
-        return null; // Modifique conforme necessário
+        if (words.contains(word)) {
+            return word;
+        } else {
+            return null;
+        }
     }
+
 
     public String wordWithWildcardFound(String word) {
         // Implementação do método para verificar se a palavra com coringa foi encontrada
@@ -170,7 +175,8 @@ public class WSModel {
             }
             String selectedWordStr = selectedWord.toString();
             System.out.println("Selected horizontal word: " + selectedWordStr);
-            if (words.contains(selectedWordStr)) {
+            String foundWord = wordFound(selectedWordStr);
+            if (foundWord != null) {
                 for (int col = minCol; col <= maxCol; col++) {
                     System.out.println("Coloring button at row " + minRow + ", col " + col);
 
@@ -184,7 +190,8 @@ public class WSModel {
             }
             String selectedWordStr = selectedWord.toString();
             System.out.println("Selected vertical word: " + selectedWordStr);
-            if (words.contains(selectedWordStr)) {
+            String foundWord = wordFound(selectedWordStr);
+            if (foundWord != null) {
                 for (int row = minRow; row <= maxRow; row++) {
                     System.out.println("Coloring button at row " + row + ", col " + minCol);
 
