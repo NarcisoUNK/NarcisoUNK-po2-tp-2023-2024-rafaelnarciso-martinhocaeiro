@@ -1,18 +1,17 @@
 package pt.ipbeja.app.model;
 
 import javafx.scene.control.Button;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
-/**
- * Game model
- * @version 2024/04/14
- */
 public class WSModel {
 
     private final List<List<String>> lettersGrid;
@@ -20,6 +19,7 @@ public class WSModel {
     private WSView wsView;
     private final int BOARD_SIZE = 10; // Tamanho do tabuleiro
     private final List<String> words = new ArrayList<>(); // List to store words from file
+    private final Set<String> foundWords = new HashSet<>(); // Set to store found words
 
     public WSModel(String filePath) {
         this.lettersGrid = new ArrayList<>();
@@ -140,26 +140,16 @@ public class WSModel {
     }
 
     public boolean allWordsWereFound() {
-        // Implementação do método para verificar se todas as palavras foram encontradas
-        // Deve retornar true se todas as palavras foram encontradas, caso contrário, false
-        return false; // Modifique conforme necessário
+        return foundWords.size() == words.size();
     }
 
     public String wordFound(String word) {
-        // Implementação do método para verificar se a palavra foi encontrada
-        // Deve retornar a palavra encontrada ou null se não foi encontrada
         if (words.contains(word)) {
+            foundWords.add(word);
             return word;
         } else {
             return null;
         }
-    }
-
-
-    public String wordWithWildcardFound(String word) {
-        // Implementação do método para verificar se a palavra com coringa foi encontrada
-        // Deve retornar a palavra encontrada ou null se não foi encontrada
-        return null; // Modifique conforme necessário
     }
 
     public boolean isFirstAndLastOfWord(Position firstPosition, Position lastPosition) {
@@ -168,7 +158,7 @@ public class WSModel {
         int minCol = Math.min(firstPosition.col(), lastPosition.col());
         int maxCol = Math.max(firstPosition.col(), lastPosition.col());
 
-        if (minRow == maxRow) { // Horizontal selection
+        if (minRow == maxRow) { // Seleção horizontal
             StringBuilder selectedWord = new StringBuilder();
             for (int col = minCol; col <= maxCol; col++) {
                 selectedWord.append(lettersGrid.get(minRow).get(col));
@@ -177,13 +167,12 @@ public class WSModel {
             System.out.println("Selected horizontal word: " + selectedWordStr);
             String foundWord = wordFound(selectedWordStr);
             if (foundWord != null) {
-                for (int col = minCol; col <= maxCol; col++) {
-                    System.out.println("Coloring button at row " + minRow + ", col " + col);
-
+                if (allWordsWereFound()) {
+                    wsView.update(new MessageToUI(List.of(), "Level completed!")); // Notifica a visão de que todas as palavras foram encontradas
                 }
                 return true;
             }
-        } else if (minCol == maxCol) { // Vertical selection
+        } else if (minCol == maxCol) { // Seleção vertical
             StringBuilder selectedWord = new StringBuilder();
             for (int row = minRow; row <= maxRow; row++) {
                 selectedWord.append(lettersGrid.get(row).get(minCol));
@@ -192,13 +181,13 @@ public class WSModel {
             System.out.println("Selected vertical word: " + selectedWordStr);
             String foundWord = wordFound(selectedWordStr);
             if (foundWord != null) {
-                for (int row = minRow; row <= maxRow; row++) {
-                    System.out.println("Coloring button at row " + row + ", col " + minCol);
-
+                if (allWordsWereFound()) {
+                    wsView.update(new MessageToUI(List.of(), "Level completed!")); // Notifica a visão de que todas as palavras foram encontradas
                 }
                 return true;
             }
         }
         return false;
     }
+
 }

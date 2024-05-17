@@ -132,7 +132,6 @@ public class WSBoard extends GridPane implements WSView {
         }
     }
 
-
     /**
      * Simply updates the text for the buttons in the received positions
      *
@@ -148,13 +147,14 @@ public class WSBoard extends GridPane implements WSView {
         }
         if (this.wsModel.allWordsWereFound()) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("");
-            alert.setHeaderText("");
-            alert.setContentText("Level completed!");
+            alert.setTitle("Game Over");
+            alert.setHeaderText(null);
+            alert.setContentText(messageToUI.message()); // Usa a mensagem fornecida
             alert.showAndWait();
             System.exit(0);
         }
     }
+
 
     /**
      * Can be optimized using an additional matrix with all the buttons
