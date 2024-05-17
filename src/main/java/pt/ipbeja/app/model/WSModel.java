@@ -2,7 +2,6 @@ package pt.ipbeja.app.model;
 
 import javafx.scene.control.Button;
 
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,7 +15,7 @@ public class WSModel {
     private final List<List<String>> lettersGrid;
     private final List<List<Button>> buttonGrid;
     private WSView wsView;
-    private final int BOARD_SIZE = 10; // Tamanho do tabuleiro
+    private static final int BOARD_SIZE = 10; // Tamanho do tabuleiro
     private final List<String> words = new ArrayList<>(); // List to store words from file
     private final Set<String> foundWords = new HashSet<>(); // Set to store found words
 
@@ -150,28 +149,23 @@ public class WSModel {
             return null;
         }
     }
+
+    // Método para obter a mensagem de pontuação
+    public String getScoreMessage() {
+        int totalWords = words.size();
+        int foundWordsCount = foundWords.size();
+        double score = ((double) foundWordsCount / totalWords) * 100;
+        return String.format("Words Found: %d/%d (%.2f%%)", foundWordsCount, totalWords, score);
+    }
+
     public void writeScoreToFile() {
-        int totalWords = words.size(); // Total number of words
-        int foundWords = 0; // Number of words found
-
-        // Count the number of words found
-        for (String word : words) {
-            if (wordFound(word) != null) {
-                foundWords++;
-            }
-        }
-
-        // Calculate the score as the percentage of words found
-        double score = (double) foundWords;
-
-        // Write the score to the scores.txt file
+        String scoreMessage = getScoreMessage();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("scores.txt", true))) {
-            writer.write(String.format("%.2f%%\n", score));
+            writer.write(scoreMessage + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 
     public boolean isFirstAndLastOfWord(Position firstPosition, Position lastPosition) {
         int minRow = Math.min(firstPosition.line(), lastPosition.line());
@@ -189,7 +183,9 @@ public class WSModel {
             String foundWord = wordFound(selectedWordStr);
             if (foundWord != null) {
                 if (allWordsWereFound()) {
-                    wsView.update(new MessageToUI(List.of(), "Level completed!")); // Notifica a visão de que todas as palavras foram encontradas
+                    writeScoreToFile();
+                    String scoreMessage = getScoreMessage();
+                    wsView.update(new MessageToUI(List.of(), scoreMessage));
                 }
                 return true;
             }
@@ -204,13 +200,12 @@ public class WSModel {
             if (foundWord != null) {
                 if (allWordsWereFound()) {
                     writeScoreToFile();
-                    wsView.update(new MessageToUI(List.of(), "Level completed!"));
-                   // Notifica a visão de que todas as palavras foram encontradas
+                    String scoreMessage = getScoreMessage();
+                    wsView.update(new MessageToUI(List.of(), scoreMessage));
                 }
                 return true;
             }
         }
         return false;
     }
-
 }

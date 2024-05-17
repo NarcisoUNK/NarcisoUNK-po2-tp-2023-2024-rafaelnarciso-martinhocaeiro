@@ -149,7 +149,7 @@ public class WSBoard extends GridPane implements WSView {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Game Over");
             alert.setHeaderText(null);
-            alert.setContentText(messageToUI.message()); // Usa a mensagem fornecida
+            alert.setContentText(messageToUI.message());
             alert.showAndWait();
             System.exit(0);
         }
