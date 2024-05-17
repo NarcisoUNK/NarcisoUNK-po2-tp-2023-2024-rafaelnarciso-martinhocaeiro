@@ -116,9 +116,22 @@ public class WSBoard extends GridPane implements WSView {
      * @param secondButton the button of the last letter
      */
     private void highlightWord(Button firstButton, Button secondButton) {
-        firstButton.setStyle("-fx-background-color: lightgreen");
-        secondButton.setStyle("-fx-background-color: lightgreen");
+        Position firstPosition = getPositionOfButton(firstButton);
+        Position secondPosition = getPositionOfButton(secondButton);
+
+        int minRow = Math.min(firstPosition.line(), secondPosition.line());
+        int maxRow = Math.max(firstPosition.line(), secondPosition.line());
+        int minCol = Math.min(firstPosition.col(), secondPosition.col());
+        int maxCol = Math.max(firstPosition.col(), secondPosition.col());
+
+        for (int row = minRow; row <= maxRow; row++) {
+            for (int col = minCol; col <= maxCol; col++) {
+                Button button = getButton(row, col);
+                button.setStyle("-fx-background-color: lightgreen");
+            }
+        }
     }
+
 
     /**
      * Simply updates the text for the buttons in the received positions

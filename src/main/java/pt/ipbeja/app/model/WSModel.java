@@ -1,7 +1,6 @@
 package pt.ipbeja.app.model;
 
 import javafx.scene.control.Button;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,19 +11,21 @@ import java.util.Random;
 
 /**
  * Game model
- * @author anonymized
  * @version 2024/04/14
  */
 public class WSModel {
 
     private final List<List<String>> lettersGrid;
+    private final List<List<Button>> buttonGrid;
     private WSView wsView;
     private final int BOARD_SIZE = 10; // Tamanho do tabuleiro
-
+    private final List<String> words = new ArrayList<>(); // List to store words from file
 
     public WSModel(String filePath) {
         this.lettersGrid = new ArrayList<>();
+        this.buttonGrid = new ArrayList<>(); // Initialize button grid
         initializeGrid();
+        initializeButtonGrid(); // Initialize button grid
         readWordsFromFile(filePath);
         fillRemainingPositionsRandomly();
     }
@@ -39,13 +40,24 @@ public class WSModel {
         }
     }
 
+    private void initializeButtonGrid() {
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            List<Button> row = new ArrayList<>();
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                Button button = new Button();
+                row.add(button); // Add new Button to each position
+            }
+            buttonGrid.add(row);
+        }
+    }
+
     private void readWordsFromFile(String filePath) {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            List<String> words = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
                 words.add(line);
             }
+            System.out.println(words);
             Collections.shuffle(words); // Embaralha as palavras
             distributeWordsOnBoard(words);
             fillRemainingPositionsRandomly();
@@ -99,13 +111,6 @@ public class WSModel {
         }
     }
 
-
-
-
-
-
-
-
     private void fillRemainingPositionsRandomly() {
         Random random = new Random();
         char[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
@@ -118,14 +123,13 @@ public class WSModel {
         }
     }
 
+    public int nLines() {
+        return this.lettersGrid.size();
+    }
 
-
-
-
-
-
-    public int nLines() { return this.lettersGrid.size(); }
-    public int nCols() { return this.lettersGrid.get(0).size(); }
+    public int nCols() {
+        return this.lettersGrid.get(0).size();
+    }
 
     public void registerView(WSView wsView) {
         this.wsView = wsView;
@@ -153,30 +157,41 @@ public class WSModel {
         return null; // Modifique conforme necessário
     }
 
-
-
     public boolean isFirstAndLastOfWord(Position firstPosition, Position lastPosition) {
         int minRow = Math.min(firstPosition.line(), lastPosition.line());
         int maxRow = Math.max(firstPosition.line(), lastPosition.line());
         int minCol = Math.min(firstPosition.col(), lastPosition.col());
         int maxCol = Math.max(firstPosition.col(), lastPosition.col());
 
-        // Verifica se as letras clicadas estão na mesma linha ou coluna
-        if (minRow == maxRow || minCol == maxCol) {
-            for (int row = minRow; row <= maxRow; row++) {
-                for (int col = minCol; col <= maxCol; col++) {
-                    if (textInPosition(new Position(row, col)) == null) {
-                        return false; // Se houver espaços em branco entre as letras, não é o início e o fim de uma palavra
-                    }
-                }
+        if (minRow == maxRow) { // Horizontal selection
+            StringBuilder selectedWord = new StringBuilder();
+            for (int col = minCol; col <= maxCol; col++) {
+                selectedWord.append(lettersGrid.get(minRow).get(col));
             }
-            return true;
-        }
+            String selectedWordStr = selectedWord.toString();
+            System.out.println("Selected horizontal word: " + selectedWordStr);
+            if (words.contains(selectedWordStr)) {
+                for (int col = minCol; col <= maxCol; col++) {
+                    System.out.println("Coloring button at row " + minRow + ", col " + col);
 
+                }
+                return true;
+            }
+        } else if (minCol == maxCol) { // Vertical selection
+            StringBuilder selectedWord = new StringBuilder();
+            for (int row = minRow; row <= maxRow; row++) {
+                selectedWord.append(lettersGrid.get(row).get(minCol));
+            }
+            String selectedWordStr = selectedWord.toString();
+            System.out.println("Selected vertical word: " + selectedWordStr);
+            if (words.contains(selectedWordStr)) {
+                for (int row = minRow; row <= maxRow; row++) {
+                    System.out.println("Coloring button at row " + row + ", col " + minCol);
+
+                }
+                return true;
+            }
+        }
         return false;
     }
-
-
-
-
 }
