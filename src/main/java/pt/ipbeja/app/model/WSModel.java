@@ -77,7 +77,6 @@ public class WSModel {
             boolean horizontal = random.nextBoolean(); // Determina aleatoriamente a orientação da palavra
             int startX = random.nextInt(BOARD_SIZE); // Início da distribuição de palavras na horizontal
             int startY = random.nextInt(BOARD_SIZE); // Início da distribuição de palavras na vertical
-            int wordLength = word.length();
             if (canPlaceWordAtPosition(word, startX, startY, horizontal)) {
                 distributeWord(word, startX, startY, horizontal);
                 placed = true;

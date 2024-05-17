@@ -40,6 +40,7 @@
                 Button endGameButton = new Button("Terminar Jogo");
                 endGameButton.setOnAction(event -> {
                     String scoreMessage = wsModel.getScoreMessage();
+                    wsModel.writeScoreToFile();
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Game Over");
                     alert.setHeaderText(null);
