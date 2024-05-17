@@ -158,6 +158,7 @@ public class WSModel {
         return String.format("Words Found: %d/%d (%.2f%%)", foundWordsCount, totalWords, score);
     }
 
+
     public void writeScoreToFile() {
         String scoreMessage = getScoreMessage();
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("scores.txt", true))) {

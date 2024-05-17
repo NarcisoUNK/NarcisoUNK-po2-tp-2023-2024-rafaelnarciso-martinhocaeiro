@@ -1,15 +1,16 @@
 package pt.ipbeja.app.ui;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
 import pt.ipbeja.app.model.MessageToUI;
 import pt.ipbeja.app.model.Position;
 import pt.ipbeja.app.model.WSModel;
 import pt.ipbeja.app.model.WSView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Game interface. Just a GridPane of buttons. No images. No menu.
@@ -17,17 +18,19 @@ import java.util.List;
  * @author anonymized
  * @version 2024/04/14
  */
-public class WSBoard extends GridPane implements WSView {
+public class WSBoard extends BorderPane implements WSView {
     private final WSModel wsModel;
     private static final int SQUARE_SIZE = 80;
     private Button firstButtonClicked;
     private Button secondButtonClicked;
+    private final Stage stage; // Reference to the main stage
 
     /**
      * Create a board with letters
      */
-    public WSBoard(WSModel wsModel) {
+    public WSBoard(WSModel wsModel, Stage stage) {
         this.wsModel = wsModel;
+        this.stage = stage;
         this.buildGUI();
     }
 
@@ -37,15 +40,27 @@ public class WSBoard extends GridPane implements WSView {
     private void buildGUI() {
         assert (this.wsModel != null);
 
+        GridPane gridPane = new GridPane();
+
         // create one label for each position
         for (int line = 0; line < this.wsModel.nLines(); line++) {
             for (int col = 0; col < this.wsModel.nCols(); col++) {
                 Button button = createButton(line, col);
-                this.add(button, col, line); // add button to GridPane
+                gridPane.add(button, col, line); // add button to GridPane
             }
         }
+
+        Button endGameButton = new Button("Terminar Jogo");
+        endGameButton.setOnAction(event -> handleEndGameButtonClick());
+
+        BorderPane.setAlignment(endGameButton, Pos.CENTER);
+        BorderPane.setMargin(endGameButton, new Insets(10));
+
+        this.setCenter(gridPane);
+        this.setBottom(endGameButton);
         this.requestFocus();
     }
+
 
     /**
      * Creates a button with a specific line and column
@@ -156,6 +171,20 @@ public class WSBoard extends GridPane implements WSView {
     }
 
     /**
+     * Handles the end game button click event
+     */
+    private void handleEndGameButtonClick() {
+        this.wsModel.writeScoreToFile();
+        String scoreMessage = this.wsModel.getScoreMessage();
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Game Terminated");
+        alert.setHeaderText(null);
+        alert.setContentText(scoreMessage);
+        alert.showAndWait();
+        this.stage.close(); // Close the application window
+    }
+
+    /**
      * Can be optimized using an additional matrix with all the buttons
      *
      * @param line line of label in board
@@ -163,6 +192,7 @@ public class WSBoard extends GridPane implements WSView {
      * @return the button at line, col
      */
     public Button getButton(int line, int col) {
-        return (Button) this.getChildren().get(line * wsModel.nCols() + col);
+        GridPane gridPane = (GridPane) this.getCenter(); // Assuming buttons are added to the center of BorderPane
+        return (Button) gridPane.getChildren().get(line * wsModel.nCols() + col);
     }
 }
