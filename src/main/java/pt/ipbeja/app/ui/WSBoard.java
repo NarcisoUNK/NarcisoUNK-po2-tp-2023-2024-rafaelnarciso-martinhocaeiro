@@ -70,31 +70,31 @@ public class WSBoard extends GridPane implements WSView {
      * @param button the clicked button
      */
     private void handleButtonClick(Button button) {
-        // Se for o primeiro clique ou o mesmo botão for clicado novamente, define-o como amarelo
-        if (firstButtonClicked == null || button == firstButtonClicked) {
+        if (firstButtonClicked == null) {
             firstButtonClicked = button;
             firstButtonClicked.setStyle("-fx-background-color: yellow");
-            return;
-        }
-
-        // Se for o segundo clique em um botão diferente
-        secondButtonClicked = button;
-
-        // Get the positions of the buttons
-        Position firstPosition = getPositionOfButton(firstButtonClicked);
-        Position secondPosition = getPositionOfButton(secondButtonClicked);
-
-        // Check if the positions correspond to the beginning and end of a word
-        if (wsModel.isFirstAndLastOfWord(firstPosition, secondPosition)) {
-            highlightWord(firstButtonClicked, secondButtonClicked);
+        } else if (button == firstButtonClicked) {
+            firstButtonClicked.setStyle(""); // Reset the first button style to normal
+            firstButtonClicked = null; // Reset the first button reference
         } else {
-            // Reset the first button style to normal
-            firstButtonClicked.setStyle("");
-        }
+            secondButtonClicked = button;
 
-        // Reset the first and second button references
-        firstButtonClicked = null;
-        secondButtonClicked = null;
+            // Get the positions of the buttons
+            Position firstPosition = getPositionOfButton(firstButtonClicked);
+            Position secondPosition = getPositionOfButton(secondButtonClicked);
+
+            // Check if the positions correspond to the beginning and end of a word
+            if (wsModel.isFirstAndLastOfWord(firstPosition, secondPosition)) {
+                highlightWord(firstButtonClicked, secondButtonClicked);
+            } else {
+                // Reset the first button style to normal
+                firstButtonClicked.setStyle("");
+            }
+
+            // Reset the first and second button references
+            firstButtonClicked = null;
+            secondButtonClicked = null;
+        }
     }
 
     /**
@@ -154,7 +154,6 @@ public class WSBoard extends GridPane implements WSView {
             System.exit(0);
         }
     }
-
 
     /**
      * Can be optimized using an additional matrix with all the buttons
