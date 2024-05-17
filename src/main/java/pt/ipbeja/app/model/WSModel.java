@@ -2,9 +2,8 @@ package pt.ipbeja.app.model;
 
 import javafx.scene.control.Button;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -151,6 +150,28 @@ public class WSModel {
             return null;
         }
     }
+    public void writeScoreToFile() {
+        int totalWords = words.size(); // Total number of words
+        int foundWords = 0; // Number of words found
+
+        // Count the number of words found
+        for (String word : words) {
+            if (wordFound(word) != null) {
+                foundWords++;
+            }
+        }
+
+        // Calculate the score as the percentage of words found
+        double score = (double) foundWords;
+
+        // Write the score to the scores.txt file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("scores.txt", true))) {
+            writer.write(String.format("%.2f%%\n", score));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public boolean isFirstAndLastOfWord(Position firstPosition, Position lastPosition) {
         int minRow = Math.min(firstPosition.line(), lastPosition.line());
@@ -182,7 +203,9 @@ public class WSModel {
             String foundWord = wordFound(selectedWordStr);
             if (foundWord != null) {
                 if (allWordsWereFound()) {
-                    wsView.update(new MessageToUI(List.of(), "Level completed!")); // Notifica a visão de que todas as palavras foram encontradas
+                    writeScoreToFile();
+                    wsView.update(new MessageToUI(List.of(), "Level completed!"));
+                   // Notifica a visão de que todas as palavras foram encontradas
                 }
                 return true;
             }
