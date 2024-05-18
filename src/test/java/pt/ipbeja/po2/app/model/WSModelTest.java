@@ -2,9 +2,13 @@ package pt.ipbeja.po2.app.model;
 
 import org.junit.jupiter.api.Test;
 import pt.ipbeja.app.model.MessageToUI;
+import pt.ipbeja.app.model.Position;
 import pt.ipbeja.app.model.WSModel;
 import pt.ipbeja.app.model.WSView;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,4 +51,3 @@ class WSModelTest {
         });
     }
 }
-

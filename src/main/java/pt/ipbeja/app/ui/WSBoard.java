@@ -153,12 +153,35 @@ public class WSBoard extends BorderPane implements WSView {
         StringBuilder wordBuilder = new StringBuilder();
         StringBuilder positionsBuilder = new StringBuilder();
 
-        for (int row = minRow; row <= maxRow; row++) {
-            for (int col = minCol; col <= maxCol; col++) {
+        // Verifica se a palavra está na diagonal
+        boolean isDiagonal = (maxRow - minRow) == (maxCol - minCol);
+
+        if (isDiagonal) {
+            int rowIncrement = firstPosition.line() < secondPosition.line() ? 1 : -1;
+            int colIncrement = firstPosition.col() < secondPosition.col() ? 1 : -1;
+            int row = firstPosition.line();
+            int col = firstPosition.col();
+            while (row != secondPosition.line() && col != secondPosition.col()) {
                 Button button = getButton(row, col);
                 button.setStyle("-fx-background-color: lightgreen");
                 wordBuilder.append(button.getText());
                 positionsBuilder.append(String.format("(%d, %s) -> %s\n", row + 1, (char) ('A' + col), button.getText()));
+                row += rowIncrement;
+                col += colIncrement;
+            }
+            // Adiciona a última letra da palavra
+            Button lastButton = getButton(secondPosition.line(), secondPosition.col());
+            lastButton.setStyle("-fx-background-color: lightgreen");
+            wordBuilder.append(lastButton.getText());
+            positionsBuilder.append(String.format("(%d, %s) -> %s\n", secondPosition.line() + 1, (char) ('A' + secondPosition.col()), lastButton.getText()));
+        } else {
+            for (int row = minRow; row <= maxRow; row++) {
+                for (int col = minCol; col <= maxCol; col++) {
+                    Button button = getButton(row, col);
+                    button.setStyle("-fx-background-color: lightgreen");
+                    wordBuilder.append(button.getText());
+                    positionsBuilder.append(String.format("(%d, %s) -> %s\n", row + 1, (char) ('A' + col), button.getText()));
+                }
             }
         }
 
@@ -172,6 +195,8 @@ public class WSBoard extends BorderPane implements WSView {
         // Scroll to the end of the TextArea
         movesTextArea.setScrollTop(Double.MAX_VALUE);
     }
+
+
 
 
     /**
