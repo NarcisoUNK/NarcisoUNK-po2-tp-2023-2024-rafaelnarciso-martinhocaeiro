@@ -37,17 +37,7 @@
                 wsBoard.requestFocus(); // to remove focus from first button
 
                 // Criar botão "Terminar Jogo"
-                Button endGameButton = new Button("Terminar Jogo");
-                endGameButton.setOnAction(event -> {
-                    String scoreMessage = wsModel.getScoreMessage();
-                    wsModel.writeScoreToFile();
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Game Over");
-                    alert.setHeaderText(null);
-                    alert.setContentText(scoreMessage);
-                    alert.showAndWait();
-                    primaryStage.close(); // Fechar a janela quando o botão for clicado
-                });
+                Button endGameButton = getButton(primaryStage, wsModel);
 
                 // Adicionar o botão ao topo da janela
                 HBox hbox = new HBox();
@@ -69,6 +59,20 @@
             }
         }
 
+        private static Button getButton(Stage primaryStage, WSModel wsModel) {
+            Button endGameButton = new Button("Terminar Jogo");
+            endGameButton.setOnAction(event -> {
+                String scoreMessage = wsModel.getScoreMessage();
+                wsModel.writeScoreToFile();
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Game Over");
+                alert.setHeaderText(null);
+                alert.setContentText(scoreMessage);
+                alert.showAndWait();
+                primaryStage.close(); // Fechar a janela quando o botão for clicado
+            });
+            return endGameButton;
+        }
 
 
         /**

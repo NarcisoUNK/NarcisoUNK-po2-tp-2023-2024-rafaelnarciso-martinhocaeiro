@@ -4,8 +4,11 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import pt.ipbeja.app.model.MessageToUI;
 import pt.ipbeja.app.model.Position;
@@ -15,15 +18,14 @@ import pt.ipbeja.app.model.WSView;
 /**
  * Game interface. Just a GridPane of buttons. No images. No menu.
  *
- * @author anonymized
  * @version 2024/04/14
  */
 public class WSBoard extends BorderPane implements WSView {
     private final WSModel wsModel;
     private static final int SQUARE_SIZE = 80;
     private Button firstButtonClicked;
-    private Button secondButtonClicked;
     private final Stage stage; // Reference to the main stage
+    private final TextArea movesTextArea; // Text area to display the moves
 
     /**
      * Create a board with letters
@@ -31,6 +33,7 @@ public class WSBoard extends BorderPane implements WSView {
     public WSBoard(WSModel wsModel, Stage stage) {
         this.wsModel = wsModel;
         this.stage = stage;
+        this.movesTextArea = new TextArea();
         this.buildGUI();
     }
 
@@ -50,6 +53,15 @@ public class WSBoard extends BorderPane implements WSView {
             }
         }
 
+        movesTextArea.setEditable(false);
+        movesTextArea.setPrefWidth(300);
+
+        VBox rightPane = new VBox();
+        rightPane.getChildren().addAll(new Label("Jogadas Efetuadas"), movesTextArea);
+        rightPane.setSpacing(10);
+        rightPane.setPadding(new Insets(10));
+        rightPane.setAlignment(Pos.TOP_LEFT);
+
         Button endGameButton = new Button("Terminar Jogo");
         endGameButton.setOnAction(event -> handleEndGameButtonClick());
 
@@ -57,10 +69,10 @@ public class WSBoard extends BorderPane implements WSView {
         BorderPane.setMargin(endGameButton, new Insets(10));
 
         this.setCenter(gridPane);
+        this.setRight(rightPane);
         this.setBottom(endGameButton);
         this.requestFocus();
     }
-
 
     /**
      * Creates a button with a specific line and column
@@ -92,7 +104,7 @@ public class WSBoard extends BorderPane implements WSView {
             firstButtonClicked.setStyle(""); // Reset the first button style to normal
             firstButtonClicked = null; // Reset the first button reference
         } else {
-            secondButtonClicked = button;
+            Button secondButtonClicked = button;
 
             // Get the positions of the buttons
             Position firstPosition = getPositionOfButton(firstButtonClicked);
@@ -108,7 +120,6 @@ public class WSBoard extends BorderPane implements WSView {
 
             // Reset the first and second button references
             firstButtonClicked = null;
-            secondButtonClicked = null;
         }
     }
 
@@ -139,13 +150,29 @@ public class WSBoard extends BorderPane implements WSView {
         int minCol = Math.min(firstPosition.col(), secondPosition.col());
         int maxCol = Math.max(firstPosition.col(), secondPosition.col());
 
+        StringBuilder wordBuilder = new StringBuilder();
+        StringBuilder positionsBuilder = new StringBuilder();
+
         for (int row = minRow; row <= maxRow; row++) {
             for (int col = minCol; col <= maxCol; col++) {
                 Button button = getButton(row, col);
                 button.setStyle("-fx-background-color: lightgreen");
+                wordBuilder.append(button.getText());
+                positionsBuilder.append(String.format("(%d, %s) -> %s\n", row + 1, (char) ('A' + col), button.getText()));
             }
         }
+
+        String foundWord = wordBuilder.toString();
+        positionsBuilder.append(String.format("\"%s\" (%d, %s) to (%d, %s)\n",
+                foundWord, firstPosition.line() + 1, (char) ('A' + firstPosition.col()),
+                secondPosition.line() + 1, (char) ('A' + secondPosition.col())));
+
+        movesTextArea.appendText(positionsBuilder.toString());
+
+        // Scroll to the end of the TextArea
+        movesTextArea.setScrollTop(Double.MAX_VALUE);
     }
+
 
     /**
      * Simply updates the text for the buttons in the received positions
