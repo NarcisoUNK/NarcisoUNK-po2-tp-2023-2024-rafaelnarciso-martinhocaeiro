@@ -62,17 +62,12 @@ public class WSBoard extends BorderPane implements WSView {
         rightPane.setPadding(new Insets(10));
         rightPane.setAlignment(Pos.TOP_LEFT);
 
-        Button endGameButton = new Button("Terminar Jogo");
-        endGameButton.setOnAction(event -> handleEndGameButtonClick());
-
-        BorderPane.setAlignment(endGameButton, Pos.CENTER);
-        BorderPane.setMargin(endGameButton, new Insets(10));
-
         this.setCenter(gridPane);
         this.setRight(rightPane);
-        this.setBottom(endGameButton);
         this.requestFocus();
     }
+
+
 
     /**
      * Creates a button with a specific line and column
