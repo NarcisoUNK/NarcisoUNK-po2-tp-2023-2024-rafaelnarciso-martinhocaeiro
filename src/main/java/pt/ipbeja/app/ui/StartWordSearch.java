@@ -56,13 +56,12 @@ public class StartWordSearch extends Application {
             borderPane.setTop(hbox); // Definir o HBox como o topo do BorderPane
             borderPane.setCenter(wsBoard); // Definir o WSBoard como o centro do BorderPane
 
-            // Definir o tamanho da cena como o tamanho da tela
-            primaryStage.setFullScreen(true);
-            primaryStage.setFullScreenExitHint(""); // opcional: remova a mensagem de saída do modo de tela cheia
-            primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH); // opcional: desativa a tecla de saída do modo de tela cheia
-
             primaryStage.setScene(new Scene(borderPane));
             primaryStage.setTitle("Word Search Game"); // Definir o título da janela
+
+            // Configurar fullscreen
+            setFullScreen(primaryStage);
+
             primaryStage.show();
         } else {
             // Handle the case where no file was selected (optional)
@@ -70,6 +69,13 @@ public class StartWordSearch extends Application {
             primaryStage.close();
         }
     }
+
+    private void setFullScreen(Stage stage) {
+        stage.setFullScreen(true);
+        stage.setFullScreenExitHint(""); // opcional: remova a mensagem de saída do modo de tela cheia
+        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH); // opcional: desativa a tecla de saída do modo de tela cheia
+    }
+
 
     private static Button getEndGameButton(Stage primaryStage, WSModel wsModel) {
         Button endGameButton = new Button("Terminar Jogo");
