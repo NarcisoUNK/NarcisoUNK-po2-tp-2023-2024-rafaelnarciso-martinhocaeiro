@@ -1,84 +1,98 @@
-    package pt.ipbeja.app.ui;
+package pt.ipbeja.app.ui;
 
-    import javafx.application.Application;
-    import javafx.geometry.Pos;
-    import javafx.scene.Scene;
-    import javafx.scene.control.Alert;
-    import javafx.scene.control.Button;
-    import javafx.scene.control.Label;
-    import javafx.scene.layout.BorderPane;
-    import javafx.scene.layout.HBox;
-    import javafx.stage.FileChooser;
-    import javafx.stage.Stage;
-    import pt.ipbeja.app.model.WSModel;
+import javafx.application.Application;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import pt.ipbeja.app.model.WSModel;
 
-    import java.io.File;
+import java.io.File;
 
-    /**
-     * Start a game with a hardcoded board
-     * @version 2024/04/14
-     */
-    public class StartWordSearch extends Application {
+/**
+ * Start a game with a hardcoded board
+ * @version 2024/04/14
+ */
+public class StartWordSearch extends Application {
 
-        @Override
-        public void start(Stage primaryStage) {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Selecione um ficheiro");
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Ficheiros de texto", "*.txt"));
+    @Override
+    public void start(Stage primaryStage) {
+        initializeGame(primaryStage);
+    }
 
-            File selectedFile = fileChooser.showOpenDialog(primaryStage);
+    private void initializeGame(Stage primaryStage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Selecione um ficheiro");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Ficheiros de texto", "*.txt"));
 
-            if (selectedFile != null) {
-                WSModel wsModel = new WSModel(selectedFile.getAbsolutePath());
-                WSBoard wsBoard = new WSBoard(wsModel, primaryStage);
-                primaryStage.setScene(new Scene(wsBoard));
+        File selectedFile = fileChooser.showOpenDialog(primaryStage);
 
-                wsModel.registerView(wsBoard);
-                wsBoard.requestFocus(); // to remove focus from first button
+        if (selectedFile != null) {
+            WSModel wsModel = new WSModel(selectedFile.getAbsolutePath());
+            WSBoard wsBoard = new WSBoard(wsModel, primaryStage);
 
-                // Criar botão "Terminar Jogo"
-                Button endGameButton = getButton(primaryStage, wsModel);
+            wsModel.registerView(wsBoard);
+            wsBoard.requestFocus(); // to remove focus from first button
 
-                // Adicionar o botão ao topo da janela
-                HBox hbox = new HBox();
-                hbox.getChildren().addAll(new Label("Word Search Game"), endGameButton);
-                hbox.setAlignment(Pos.CENTER);
-                hbox.setSpacing(10);
+            // Criar botão "Terminar Jogo"
+            Button endGameButton = getEndGameButton(primaryStage, wsModel);
 
-                BorderPane borderPane = new BorderPane();
-                borderPane.setTop(hbox); // Definir o HBox como o topo do BorderPane
-                borderPane.setCenter(wsBoard); // Definir o WSBoard como o centro do BorderPane
+            // Criar botão "Iniciar Novo Jogo"
+            Button newGameButton = getNewGameButton(primaryStage);
 
-                primaryStage.setScene(new Scene(borderPane));
-                primaryStage.setTitle("Word Search Game"); // Definir o título da janela
-                primaryStage.show();
-            } else {
-                // Handle the case where no file was selected (optional)
-                System.out.println("No file selected");
-                primaryStage.close();
-            }
-        }
+            // Adicionar os botões ao topo da janela
+            HBox hbox = new HBox();
+            hbox.getChildren().addAll(new Label("Word Search Game"), newGameButton, endGameButton);
+            hbox.setAlignment(Pos.CENTER);
+            hbox.setSpacing(10);
 
-        private static Button getButton(Stage primaryStage, WSModel wsModel) {
-            Button endGameButton = new Button("Terminar Jogo");
-            endGameButton.setOnAction(event -> {
-                String scoreMessage = wsModel.getScoreMessage();
-                wsModel.writeScoreToFile();
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Game Over");
-                alert.setHeaderText(null);
-                alert.setContentText(scoreMessage);
-                alert.showAndWait();
-                primaryStage.close(); // Fechar a janela quando o botão for clicado
-            });
-            return endGameButton;
-        }
+            BorderPane borderPane = new BorderPane();
+            borderPane.setTop(hbox); // Definir o HBox como o topo do BorderPane
+            borderPane.setCenter(wsBoard); // Definir o WSBoard como o centro do BorderPane
 
-
-        /**
-         * @param args not used
-         */
-        public static void main(String[] args) {
-            launch(args);
+            primaryStage.setScene(new Scene(borderPane));
+            primaryStage.setTitle("Word Search Game"); // Definir o título da janela
+            primaryStage.show();
+        } else {
+            // Handle the case where no file was selected (optional)
+            System.out.println("No file selected");
+            primaryStage.close();
         }
     }
+
+    private static Button getEndGameButton(Stage primaryStage, WSModel wsModel) {
+        Button endGameButton = new Button("Terminar Jogo");
+        endGameButton.setOnAction(event -> {
+            String scoreMessage = wsModel.getScoreMessage();
+            wsModel.writeScoreToFile();
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Game Over");
+            alert.setHeaderText(null);
+            alert.setContentText(scoreMessage);
+            alert.showAndWait();
+            primaryStage.close(); // Fechar a janela quando o botão for clicado
+        });
+        return endGameButton;
+    }
+
+    private Button getNewGameButton(Stage primaryStage) {
+        Button newGameButton = new Button("Iniciar Novo Jogo");
+        newGameButton.setOnAction(event -> {
+            // Reinicializar o jogo
+            initializeGame(primaryStage);
+        });
+        return newGameButton;
+    }
+
+    /**
+     * @param args not used
+     */
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
