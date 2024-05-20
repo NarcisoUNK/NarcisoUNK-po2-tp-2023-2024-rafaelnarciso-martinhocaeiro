@@ -7,9 +7,9 @@ package pt.ipbeja.app.model;
  */
 public class Cell {
     private final char letter;
-    private final int bonus;
+    private int bonus = 0;
 
-    public Cell(char letter, int bonus) {
+    public Cell(char letter) {
         this.letter = letter;
         this.bonus = bonus;
     }

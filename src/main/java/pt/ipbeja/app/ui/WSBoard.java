@@ -10,10 +10,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import pt.ipbeja.app.model.MessageToUI;
-import pt.ipbeja.app.model.Position;
-import pt.ipbeja.app.model.WSModel;
-import pt.ipbeja.app.model.WSView;
+import pt.ipbeja.app.model.*;
 
 /**
  * Game interface. Just a GridPane of buttons. No images. No menu.
@@ -26,7 +23,7 @@ public class WSBoard extends BorderPane implements WSView {
     private Button firstButtonClicked;
     private final Stage stage; // Reference to the main stage
     private final TextArea movesTextArea; // Text area to display the moves
-
+    private final Label bonusScoreLabel = new Label();
     /**
      * Create a board with letters
      */
@@ -57,7 +54,7 @@ public class WSBoard extends BorderPane implements WSView {
         movesTextArea.setPrefWidth(300);
 
         VBox rightPane = new VBox();
-        rightPane.getChildren().addAll(new Label("Jogadas Efetuadas"), movesTextArea);
+        rightPane.getChildren().addAll(new Label("Jogadas Efetuadas"), movesTextArea, bonusScoreLabel);
         rightPane.setSpacing(10);
         rightPane.setPadding(new Insets(10));
         rightPane.setAlignment(Pos.TOP_LEFT);
@@ -147,6 +144,7 @@ public class WSBoard extends BorderPane implements WSView {
 
         StringBuilder wordBuilder = new StringBuilder();
         StringBuilder positionsBuilder = new StringBuilder();
+        int bonusScore = 0; // Initialize bonus score
 
         // Verifica se a palavra está na diagonal
         boolean isDiagonal = (maxRow - minRow) == (maxCol - minCol);
@@ -158,6 +156,10 @@ public class WSBoard extends BorderPane implements WSView {
             int col = firstPosition.col();
             while (row != secondPosition.line() && col != secondPosition.col()) {
                 Button button = getButton(row, col);
+                Cell cell = wsModel.getCell(new Position(row, col));
+                if (cell instanceof BonusCell) {
+                    bonusScore += ((BonusCell) cell).getBonus();
+                }
                 button.setStyle("-fx-background-color: lightgreen");
                 wordBuilder.append(button.getText());
                 positionsBuilder.append(String.format("(%d, %s) -> %s\n", row + 1, (char) ('A' + col), button.getText()));
@@ -166,6 +168,10 @@ public class WSBoard extends BorderPane implements WSView {
             }
             // Adiciona a última letra da palavra
             Button lastButton = getButton(secondPosition.line(), secondPosition.col());
+            Cell lastCell = wsModel.getCell(secondPosition);
+            if (lastCell instanceof BonusCell) {
+                bonusScore += ((BonusCell) lastCell).getBonus();
+            }
             lastButton.setStyle("-fx-background-color: lightgreen");
             wordBuilder.append(lastButton.getText());
             positionsBuilder.append(String.format("(%d, %s) -> %s\n", secondPosition.line() + 1, (char) ('A' + secondPosition.col()), lastButton.getText()));
@@ -173,6 +179,10 @@ public class WSBoard extends BorderPane implements WSView {
             for (int row = minRow; row <= maxRow; row++) {
                 for (int col = minCol; col <= maxCol; col++) {
                     Button button = getButton(row, col);
+                    Cell cell = wsModel.getCell(new Position(row, col));
+                    if (cell instanceof BonusCell) {
+                        bonusScore += ((BonusCell) cell).getBonus();
+                    }
                     button.setStyle("-fx-background-color: lightgreen");
                     wordBuilder.append(button.getText());
                     positionsBuilder.append(String.format("(%d, %s) -> %s\n", row + 1, (char) ('A' + col), button.getText()));
@@ -189,6 +199,9 @@ public class WSBoard extends BorderPane implements WSView {
 
         // Scroll to the end of the TextArea
         movesTextArea.setScrollTop(Double.MAX_VALUE);
+
+        // Update the bonusScoreLabel
+        bonusScoreLabel.setText("Bónus: " + bonusScore);
     }
 
 
