@@ -60,7 +60,7 @@ public class StartWordSearch extends Application {
             primaryStage.setTitle("Word Search Game"); // Definir o título da janela
 
             // Configurar fullscreen
-            setFullScreen(primaryStage);
+            //setFullScreen(primaryStage);
 
             primaryStage.show();
         } else {

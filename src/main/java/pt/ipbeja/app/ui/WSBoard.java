@@ -144,17 +144,16 @@ public class WSBoard extends BorderPane implements WSView {
 
         StringBuilder wordBuilder = new StringBuilder();
         StringBuilder positionsBuilder = new StringBuilder();
-        int bonusScore = 0; // Initialize bonus score
+        int bonusScore = 0;
 
-        // Verifica se a palavra está na diagonal
-        boolean isDiagonal = (maxRow - minRow) == (maxCol - minCol);
+        boolean isDiagonal = (maxRow - minRow) == (maxCol - minCol) || (maxRow - minRow) == (minCol - maxCol);
 
         if (isDiagonal) {
             int rowIncrement = firstPosition.line() < secondPosition.line() ? 1 : -1;
             int colIncrement = firstPosition.col() < secondPosition.col() ? 1 : -1;
             int row = firstPosition.line();
             int col = firstPosition.col();
-            while (row != secondPosition.line() && col != secondPosition.col()) {
+            while (row != secondPosition.line() + rowIncrement && col != secondPosition.col() + colIncrement) {
                 Button button = getButton(row, col);
                 Cell cell = wsModel.getCell(new Position(row, col));
                 if (cell instanceof BonusCell) {
@@ -166,15 +165,6 @@ public class WSBoard extends BorderPane implements WSView {
                 row += rowIncrement;
                 col += colIncrement;
             }
-            // Adiciona a última letra da palavra
-            Button lastButton = getButton(secondPosition.line(), secondPosition.col());
-            Cell lastCell = wsModel.getCell(secondPosition);
-            if (lastCell instanceof BonusCell) {
-                bonusScore += ((BonusCell) lastCell).getBonus();
-            }
-            lastButton.setStyle("-fx-background-color: lightgreen");
-            wordBuilder.append(lastButton.getText());
-            positionsBuilder.append(String.format("(%d, %s) -> %s\n", secondPosition.line() + 1, (char) ('A' + secondPosition.col()), lastButton.getText()));
         } else {
             for (int row = minRow; row <= maxRow; row++) {
                 for (int col = minCol; col <= maxCol; col++) {
@@ -203,6 +193,7 @@ public class WSBoard extends BorderPane implements WSView {
         // Update the bonusScoreLabel
         bonusScoreLabel.setText("Bónus: " + bonusScore);
     }
+
 
 
 

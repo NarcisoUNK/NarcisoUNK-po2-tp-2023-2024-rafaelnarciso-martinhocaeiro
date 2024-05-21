@@ -52,12 +52,12 @@ public class WSModel {
         letterScores.put('Z', 10);
     }
 
-    private int calculateWordScore(String word, int startX, int startY, boolean horizontal, boolean diagonal) {
+    private int calculateWordScore(String word, int startX, int startY, boolean horizontal, boolean diagonal, int diagonalDirection) {
         int score = 0;
         for (int i = 0; i < word.length(); i++) {
             char letter = word.charAt(i);
             int baseScore = letterScores.getOrDefault(Character.toUpperCase(letter), 0);
-            Position position = getPositionForLetterInWord(startX, startY, i, horizontal, diagonal);
+            Position position = getPositionForLetterInWord(startX, startY, i, horizontal, diagonal, diagonalDirection);
             int row = position.line();
             int col = position.col();
             Cell cell = lettersGrid.get(row).get(col);
@@ -66,19 +66,73 @@ public class WSModel {
         return score;
     }
 
-    private Position getPositionForLetterInWord(int startX, int startY, int letterIndex, boolean horizontal, boolean diagonal) {
+
+
+    private Position getPositionForLetterInWord(int startX, int startY, int letterIndex, boolean horizontal, boolean diagonal, int diagonalDirection) {
         int row, col;
         if (horizontal) {
             row = startY;
             col = startX + letterIndex;
         } else if (diagonal) {
-            row = startY + letterIndex;
-            col = startX + letterIndex;
+            if (diagonalDirection == 0) {
+                row = startY + letterIndex;
+                col = startX + letterIndex;
+            } else {
+                row = startY + letterIndex;
+                col = startX - letterIndex;
+            }
         } else {
             row = startY + letterIndex;
             col = startX;
         }
         return new Position(row, col);
+    }
+
+
+
+    public boolean isFirstAndLastOfWord(Position firstPosition, Position lastPosition) {
+        int minRow = Math.min(firstPosition.line(), lastPosition.line());
+        int maxRow = Math.max(firstPosition.line(), lastPosition.line());
+        int minCol = Math.min(firstPosition.col(), lastPosition.col());
+        int maxCol = Math.max(firstPosition.col(), lastPosition.col());
+
+        boolean horizontal = minRow == maxRow;
+        boolean vertical = minCol == maxCol;
+        boolean diagonal = isDiagonalValid(firstPosition, lastPosition);
+        int diagonalDirection = 0;
+
+        if (diagonal) {
+            if (maxCol - minCol == maxRow - minRow) {
+                diagonalDirection = 0; // Diagonal descendente (↘)
+            } else {
+                diagonalDirection = 1; // Diagonal ascendente (↙)
+            }
+        }
+
+        if (horizontal || vertical || diagonal) {
+            StringBuilder word = new StringBuilder();
+
+            if (horizontal) {
+                for (int col = minCol; col <= maxCol; col++) {
+                    word.append(this.textInPosition(new Position(minRow, col)));
+                }
+            } else if (vertical) {
+                for (int row = minRow; row <= maxRow; row++) {
+                    word.append(this.textInPosition(new Position(row, minCol)));
+                }
+            } else if (diagonal) {
+                int row = minRow;
+                int col = (diagonalDirection == 0) ? minCol : maxCol;
+                while (row <= maxRow) {
+                    word.append(this.textInPosition(new Position(row, col)));
+                    row++;
+                    col = (diagonalDirection == 0) ? col + 1 : col - 1;
+                }
+            }
+
+            return wordFound(word.toString(), (diagonalDirection == 0) ? minCol : maxCol, minRow, horizontal, diagonal, diagonalDirection) != null;
+        }
+        return false;
     }
 
 
@@ -102,6 +156,7 @@ public class WSModel {
             buttonGrid.add(row);
         }
     }
+    
 
     private void readWordsFromFile(String filePath) {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
@@ -236,15 +291,17 @@ public class WSModel {
         return foundWords.size() == words.size();
     }
 
-    public String wordFound(String word, int startX, int startY, boolean horizontal, boolean diagonal) {
+    public String wordFound(String word, int startX, int startY, boolean horizontal, boolean diagonal, int diagonalDirection) {
         if (words.contains(word)) {
             foundWords.add(word);
-            int wordScore = calculateWordScore(word, startX, startY, horizontal, diagonal);
+            int wordScore = calculateWordScore(word, startX, startY, horizontal, diagonal, diagonalDirection);
             return word + " = " + wordScore + " pontos";
         } else {
             return null;
         }
     }
+
+
     public Cell getCell(Position position) {
         return lettersGrid.get(position.line()).get(position.col());
     }
@@ -265,38 +322,8 @@ public class WSModel {
         }
     }
 
-    public boolean isFirstAndLastOfWord(Position firstPosition, Position lastPosition) {
-        int minRow = Math.min(firstPosition.line(), lastPosition.line());
-        int maxRow = Math.max(firstPosition.line(), lastPosition.line());
-        int minCol = Math.min(firstPosition.col(), lastPosition.col());
-        int maxCol = Math.max(firstPosition.col(), lastPosition.col());
-        if (minRow == maxRow || minCol == maxCol || (maxRow - minRow == maxCol - minCol)) {
-            StringBuilder word = new StringBuilder();
-            boolean horizontal = minRow == maxRow;
-            boolean diagonal = (maxRow - minRow == maxCol - minCol);
 
-            if (horizontal) {
-                for (int col = minCol; col <= maxCol; col++) {
-                    word.append(this.textInPosition(new Position(minRow, col)));
-                }
-            } else if (minCol == maxCol) {
-                for (int row = minRow; row <= maxRow; row++) {
-                    word.append(this.textInPosition(new Position(row, minCol)));
-                }
-            } else if (diagonal) {
-                int row = minRow;
-                int col = minCol;
-                while (row <= maxRow && col <= maxCol) {
-                    word.append(this.textInPosition(new Position(row, col)));
-                    row++;
-                    col++;
-                }
-            }
 
-            return wordFound(word.toString(), minCol, minRow, horizontal, diagonal) != null;
-        }
-        return false;
-    }
 
     public boolean isDiagonalValid(Position firstPosition, Position lastPosition) {
         return Math.abs(firstPosition.line() - lastPosition.line()) == Math.abs(firstPosition.col() - lastPosition.col());
@@ -312,5 +339,9 @@ public class WSModel {
 
     public String wordWithWildcardFound(String mala) {
         return "Mala";
+    }
+
+    public void setCell(int row, int col, Cell cell) {
+        lettersGrid.get(row).set(col, cell);
     }
 }
