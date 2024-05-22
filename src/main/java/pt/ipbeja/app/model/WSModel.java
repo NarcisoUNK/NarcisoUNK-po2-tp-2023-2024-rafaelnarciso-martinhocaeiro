@@ -1,5 +1,6 @@
 package pt.ipbeja.app.model;
 
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import java.io.*;
 import java.util.*;
@@ -24,32 +25,11 @@ public class WSModel {
     }
 
     private void initializeLetterScores() {
-        letterScores.put('A', 1);
-        letterScores.put('B', 3);
-        letterScores.put('C', 3);
-        letterScores.put('D', 2);
-        letterScores.put('E', 1);
-        letterScores.put('F', 4);
-        letterScores.put('G', 2);
-        letterScores.put('H', 4);
-        letterScores.put('I', 1);
-        letterScores.put('J', 8);
-        letterScores.put('K', 5);
-        letterScores.put('L', 1);
-        letterScores.put('M', 3);
-        letterScores.put('N', 1);
-        letterScores.put('O', 1);
-        letterScores.put('P', 3);
-        letterScores.put('Q', 10);
-        letterScores.put('R', 1);
-        letterScores.put('S', 1);
-        letterScores.put('T', 1);
-        letterScores.put('U', 1);
-        letterScores.put('V', 4);
-        letterScores.put('W', 4);
-        letterScores.put('X', 8);
-        letterScores.put('Y', 4);
-        letterScores.put('Z', 10);
+        letterScores.put('A', 5);
+        letterScores.put('E', 5);
+        letterScores.put('I', 5);
+        letterScores.put('O', 5);
+        letterScores.put('U', 5);
     }
 
     private int calculateWordScore(String word, int startX, int startY, boolean horizontal, boolean diagonal, int diagonalDirection) {
@@ -103,9 +83,7 @@ public class WSModel {
 
         if (diagonal) {
             if (maxCol - minCol == maxRow - minRow) {
-                diagonalDirection = 0; // Diagonal descendente (↘)
-            } else {
-                diagonalDirection = 1; // Diagonal ascendente (↙)
+                diagonalDirection = (firstPosition.col() < lastPosition.col()) ? 0 : 1; // ↘ ou ↙
             }
         }
 
@@ -135,7 +113,6 @@ public class WSModel {
         return false;
     }
 
-
     private void initializeGrid() {
         for (int i = 0; i < BOARD_SIZE; i++) {
             List<Cell> row = new ArrayList<>();
@@ -156,7 +133,7 @@ public class WSModel {
             buttonGrid.add(row);
         }
     }
-    
+
 
     private void readWordsFromFile(String filePath) {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
@@ -292,14 +269,27 @@ public class WSModel {
     }
 
     public String wordFound(String word, int startX, int startY, boolean horizontal, boolean diagonal, int diagonalDirection) {
-        if (words.contains(word)) {
+        if (words.contains(word) && !foundWords.contains(word)) {
             foundWords.add(word);
             int wordScore = calculateWordScore(word, startX, startY, horizontal, diagonal, diagonalDirection);
+
+            // Verifica se todas as palavras foram encontradas
+            if (allWordsWereFound()) {
+                String scoreMessage = getScoreMessage();
+                writeScoreToFile();
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Game Over");
+                alert.setHeaderText(null);
+                alert.setContentText(scoreMessage);
+                alert.showAndWait();
+            }
+
             return word + " = " + wordScore + " pontos";
         } else {
             return null;
         }
     }
+
 
 
     public Cell getCell(Position position) {
