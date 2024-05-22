@@ -147,10 +147,11 @@ public class WSBoard extends BorderPane implements WSView {
         int bonusScore = 0;
 
         boolean isDiagonal = (maxRow - minRow) == (maxCol - minCol) || (maxRow - minRow) == (minCol - maxCol);
+        int diagonalDirection = (firstPosition.col() < secondPosition.col()) ? 0 : 1;
 
         if (isDiagonal) {
             int rowIncrement = firstPosition.line() < secondPosition.line() ? 1 : -1;
-            int colIncrement = firstPosition.col() < secondPosition.col() ? 1 : -1;
+            int colIncrement = (diagonalDirection == 0) ? 1 : -1;
             int row = firstPosition.line();
             int col = firstPosition.col();
             while (row != secondPosition.line() + rowIncrement && col != secondPosition.col() + colIncrement) {
@@ -165,18 +166,27 @@ public class WSBoard extends BorderPane implements WSView {
                 row += rowIncrement;
                 col += colIncrement;
             }
+        } else if (firstPosition.line() == secondPosition.line()) {
+            for (int col = minCol; col <= maxCol; col++) {
+                Button button = getButton(firstPosition.line(), col);
+                Cell cell = wsModel.getCell(new Position(firstPosition.line(), col));
+                if (cell instanceof BonusCell) {
+                    bonusScore += ((BonusCell) cell).getBonus();
+                }
+                button.setStyle("-fx-background-color: lightgreen");
+                wordBuilder.append(button.getText());
+                positionsBuilder.append(String.format("(%d, %s) -> %s\n", firstPosition.line() + 1, (char) ('A' + col), button.getText()));
+            }
         } else {
             for (int row = minRow; row <= maxRow; row++) {
-                for (int col = minCol; col <= maxCol; col++) {
-                    Button button = getButton(row, col);
-                    Cell cell = wsModel.getCell(new Position(row, col));
-                    if (cell instanceof BonusCell) {
-                        bonusScore += ((BonusCell) cell).getBonus();
-                    }
-                    button.setStyle("-fx-background-color: lightgreen");
-                    wordBuilder.append(button.getText());
-                    positionsBuilder.append(String.format("(%d, %s) -> %s\n", row + 1, (char) ('A' + col), button.getText()));
+                Button button = getButton(row, firstPosition.col());
+                Cell cell = wsModel.getCell(new Position(row, firstPosition.col()));
+                if (cell instanceof BonusCell) {
+                    bonusScore += ((BonusCell) cell).getBonus();
                 }
+                button.setStyle("-fx-background-color: lightgreen");
+                wordBuilder.append(button.getText());
+                positionsBuilder.append(String.format("(%d, %s) -> %s\n", row + 1, (char) ('A' + firstPosition.col()), button.getText()));
             }
         }
 
@@ -193,6 +203,7 @@ public class WSBoard extends BorderPane implements WSView {
         // Update the bonusScoreLabel
         bonusScoreLabel.setText("Bónus: " + bonusScore);
     }
+
 
 
 

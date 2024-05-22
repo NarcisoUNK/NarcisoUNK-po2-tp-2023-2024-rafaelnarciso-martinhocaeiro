@@ -2,6 +2,8 @@ package pt.ipbeja.app.model;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.application.Platform;
+
 import java.io.*;
 import java.util.*;
 
@@ -46,8 +48,6 @@ public class WSModel {
         return score;
     }
 
-
-
     private Position getPositionForLetterInWord(int startX, int startY, int letterIndex, boolean horizontal, boolean diagonal, int diagonalDirection) {
         int row, col;
         if (horizontal) {
@@ -67,8 +67,6 @@ public class WSModel {
         }
         return new Position(row, col);
     }
-
-
 
     public boolean isFirstAndLastOfWord(Position firstPosition, Position lastPosition) {
         int minRow = Math.min(firstPosition.line(), lastPosition.line());
@@ -133,7 +131,6 @@ public class WSModel {
             buttonGrid.add(row);
         }
     }
-
 
     private void readWordsFromFile(String filePath) {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
@@ -277,11 +274,7 @@ public class WSModel {
             if (allWordsWereFound()) {
                 String scoreMessage = getScoreMessage();
                 writeScoreToFile();
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Game Over");
-                alert.setHeaderText(null);
-                alert.setContentText(scoreMessage);
-                alert.showAndWait();
+                showAlertAndExit(scoreMessage);
             }
 
             return word + " = " + wordScore + " pontos";
@@ -290,7 +283,16 @@ public class WSModel {
         }
     }
 
-
+    private void showAlertAndExit(String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Game Over");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+            Platform.exit();
+        });
+    }
 
     public Cell getCell(Position position) {
         return lettersGrid.get(position.line()).get(position.col());
@@ -312,11 +314,10 @@ public class WSModel {
         }
     }
 
-
-
-
     public boolean isDiagonalValid(Position firstPosition, Position lastPosition) {
-        return Math.abs(firstPosition.line() - lastPosition.line()) == Math.abs(firstPosition.col() - lastPosition.col());
+        int rowDiff = Math.abs(firstPosition.line() - lastPosition.line());
+        int colDiff = Math.abs(firstPosition.col() - lastPosition.col());
+        return rowDiff == colDiff;
     }
 
     public boolean isLineValid(Position firstPosition, Position lastPosition) {
