@@ -96,15 +96,14 @@ public class WSBoard extends BorderPane implements WSView {
             firstButtonClicked.setStyle(""); // Reset the first button style to normal
             firstButtonClicked = null; // Reset the first button reference
         } else {
-            Button secondButtonClicked = button;
 
             // Get the positions of the buttons
             Position firstPosition = getPositionOfButton(firstButtonClicked);
-            Position secondPosition = getPositionOfButton(secondButtonClicked);
+            Position secondPosition = getPositionOfButton(button);
 
             // Check if the positions correspond to the beginning and end of a word
             if (wsModel.isFirstAndLastOfWord(firstPosition, secondPosition)) {
-                highlightWord(firstButtonClicked, secondButtonClicked);
+                highlightWord(firstButtonClicked, button);
             } else {
                 // Reset the first button style to normal
                 firstButtonClicked.setStyle("");

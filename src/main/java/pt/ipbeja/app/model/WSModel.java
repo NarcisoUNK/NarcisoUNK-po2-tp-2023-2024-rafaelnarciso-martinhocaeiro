@@ -10,7 +10,6 @@ import java.util.*;
 public class WSModel {
     private final List<List<Cell>> lettersGrid;
     private final List<List<Button>> buttonGrid;
-    private WSView wsView;
     private static final int BOARD_SIZE = 10;
     private final List<String> words = new ArrayList<>();
     private final Set<String> foundWords = new HashSet<>();
@@ -96,7 +95,7 @@ public class WSModel {
                 for (int row = minRow; row <= maxRow; row++) {
                     word.append(this.textInPosition(new Position(row, minCol)));
                 }
-            } else if (diagonal) {
+            } else {
                 int row = minRow;
                 int col = (diagonalDirection == 0) ? minCol : maxCol;
                 while (row <= maxRow) {
@@ -159,8 +158,7 @@ public class WSModel {
             if (startX + wordLength <= BOARD_SIZE) {
                 for (int j = 0; j < wordLength; j++) {
                     int col = startX + j;
-                    int row = startY;
-                    if (row >= BOARD_SIZE || col >= BOARD_SIZE || lettersGrid.get(row).get(col) != null) {
+                    if (startY >= BOARD_SIZE || col >= BOARD_SIZE || lettersGrid.get(startY).get(col) != null) {
                         return false;
                     }
                 }
@@ -252,8 +250,7 @@ public class WSModel {
         return this.lettersGrid.get(0).size();
     }
 
-    public void registerView(WSView wsView) {
-        this.wsView = wsView;
+    public void registerView() {
     }
 
     public String textInPosition(Position position) {

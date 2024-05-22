@@ -115,11 +115,6 @@ class WSModelTest {
     }
 
     private void registerEmptyView(WSModel model) {
-        model.registerView(new WSView() {
-            @Override
-            public void update(MessageToUI message) {
-                // Do nothing
-            }
-        });
+        model.registerView();
     }
 }

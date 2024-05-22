@@ -21,12 +21,47 @@ import java.io.File;
  */
 public class StartWordSearch extends Application {
 
+    private Stage primaryStage;
+    private Scene initialScene;
+
     @Override
     public void start(Stage primaryStage) {
-        initializeGame(primaryStage);
+        this.primaryStage = primaryStage;
+
+        // Criar cena inicial
+        createStartMenu();
+
+        // Configurar e exibir a janela principal
+        primaryStage.setTitle("Word Search Game");
+        primaryStage.setScene(initialScene);
+        primaryStage.show();
     }
 
-    private void initializeGame(Stage primaryStage) {
+    private void createStartMenu() {
+        // Criar botões para a cena inicial
+        Button newGameButton = new Button("Novo Jogo");
+        Button exitButton = new Button("Sair");
+
+        // Adicionar ação ao botão "Novo Jogo"
+        newGameButton.setOnAction(event -> startNewGame());
+        // Adicionar ação ao botão "Sair"
+        exitButton.setOnAction(event -> primaryStage.close());
+
+        // Layout para os botões
+        HBox buttonBox = new HBox(10);
+        buttonBox.getChildren().addAll(newGameButton, exitButton);
+        buttonBox.setAlignment(Pos.CENTER);
+
+        // Adicionar botões à barra de topo
+        BorderPane root = new BorderPane();
+        root.setTop(buttonBox);
+
+        // Adicionar botões à cena inicial
+        initialScene = new Scene(root, 200, 50);
+    }
+
+    private void startNewGame() {
+        // Abrir seletor de arquivo
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Selecione um ficheiro");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Ficheiros de texto", "*.txt"));
@@ -37,47 +72,37 @@ public class StartWordSearch extends Application {
             WSModel wsModel = new WSModel(selectedFile.getAbsolutePath());
             WSBoard wsBoard = new WSBoard(wsModel, primaryStage);
 
-            wsModel.registerView(wsBoard);
+            wsModel.registerView();
             wsBoard.requestFocus(); // to remove focus from first button
 
-            // Criar botão "Iniciar Novo Jogo"
-            Button newGameButton = getNewGameButton(primaryStage);
+            // Criar botões "Terminar Jogo" e "Novo Jogo"
+            Button endGameButton = getEndButton(wsModel);
 
-            // Criar botão "Terminar Jogo"
-            Button endGameButton = getEndGameButton(primaryStage, wsModel);
+            Button newGameButton = new Button("Novo Jogo");
+            newGameButton.setOnAction(event -> startNewGame());
 
-            // Adicionar os botões ao topo da janela
-            HBox hbox = new HBox();
-            hbox.getChildren().addAll(new Label("Word Search Game"), newGameButton, endGameButton);
-            hbox.setAlignment(Pos.CENTER);
-            hbox.setSpacing(10);
+            // Criar título
+            Label titleLabel = new Label("Word Search Game");
+
+            // Layout para o título e os botões "Terminar Jogo" e "Novo Jogo"
+            HBox buttonBox = new HBox(10);
+            buttonBox.getChildren().addAll(titleLabel, newGameButton, endGameButton);
+            buttonBox.setAlignment(Pos.CENTER);
 
             BorderPane borderPane = new BorderPane();
-            borderPane.setTop(hbox); // Definir o HBox como o topo do BorderPane
+            borderPane.setTop(buttonBox); // Adicionar título e botões "Terminar Jogo" e "Novo Jogo" na barra de topo
             borderPane.setCenter(wsBoard); // Definir o WSBoard como o centro do BorderPane
 
             primaryStage.setScene(new Scene(borderPane));
-            primaryStage.setTitle("Word Search Game"); // Definir o título da janela
-
             // Configurar fullscreen
             setFullScreen(primaryStage);
-
-            primaryStage.show();
         } else {
             // Handle the case where no file was selected (optional)
             System.out.println("No file selected");
-            primaryStage.close();
         }
     }
 
-    private void setFullScreen(Stage stage) {
-        stage.setFullScreen(true);
-        stage.setFullScreenExitHint(""); // opcional: remova a mensagem de saída do modo de tela cheia
-        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH); // opcional: desativa a tecla de saída do modo de tela cheia
-    }
-
-
-    private static Button getEndGameButton(Stage primaryStage, WSModel wsModel) {
+    private Button getEndButton(WSModel wsModel) {
         Button endGameButton = new Button("Terminar Jogo");
         endGameButton.setOnAction(event -> {
             String scoreMessage = wsModel.getScoreMessage();
@@ -87,18 +112,16 @@ public class StartWordSearch extends Application {
             alert.setHeaderText(null);
             alert.setContentText(scoreMessage);
             alert.showAndWait();
-            primaryStage.close(); // Fechar a janela quando o botão for clicado
+            primaryStage.setScene(initialScene); // Voltar para a cena inicial
         });
         return endGameButton;
     }
 
-    private Button getNewGameButton(Stage primaryStage) {
-        Button newGameButton = new Button("Iniciar Novo Jogo");
-        newGameButton.setOnAction(event -> {
-            // Reinicializar o jogo
-            initializeGame(primaryStage);
-        });
-        return newGameButton;
+
+    private void setFullScreen(Stage stage) {
+        stage.setFullScreenExitHint(" "); // opcional: remova a mensagem de saída do modo de tela cheia
+        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+        stage.setFullScreen(true);// opcional: desativa a tecla de saída do modo de tela cheia
     }
 
     /**
