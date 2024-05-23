@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import pt.ipbeja.app.model.WSModel;
@@ -38,6 +39,10 @@ public class StartWordSearch extends Application {
     }
 
     private void createStartMenu() {
+        // Criar título
+        Label titleLabel = new Label("Word Search Game");
+        titleLabel.setStyle("-fx-font-size: 24px;");
+
         // Criar botões para a cena inicial
         Button newGameButton = new Button("Novo Jogo");
         Button exitButton = new Button("Sair");
@@ -48,16 +53,21 @@ public class StartWordSearch extends Application {
         exitButton.setOnAction(event -> primaryStage.close());
 
         // Layout para os botões
-        HBox buttonBox = new HBox(10);
+        HBox buttonBox = new HBox(20);
         buttonBox.getChildren().addAll(newGameButton, exitButton);
         buttonBox.setAlignment(Pos.CENTER);
 
-        // Adicionar botões à barra de topo
-        BorderPane root = new BorderPane();
-        root.setTop(buttonBox);
+        // Layout principal
+        VBox mainLayout = new VBox(20);
+        mainLayout.getChildren().addAll(titleLabel, buttonBox);
+        mainLayout.setAlignment(Pos.CENTER);
 
         // Adicionar botões à cena inicial
-        initialScene = new Scene(root, 200, 50);
+        BorderPane root = new BorderPane();
+        root.setCenter(mainLayout);
+
+        // Ajustar tamanho da cena inicial
+        initialScene = new Scene(root, 600, 400);
     }
 
     private void startNewGame() {
@@ -116,7 +126,6 @@ public class StartWordSearch extends Application {
         });
         return endGameButton;
     }
-
 
     private void setFullScreen(Stage stage) {
         stage.setFullScreenExitHint(" "); // opcional: remova a mensagem de saída do modo de tela cheia
