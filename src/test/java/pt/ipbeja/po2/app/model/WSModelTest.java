@@ -3,7 +3,9 @@ package pt.ipbeja.po2.app.model;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import pt.ipbeja.app.JavaFXInitializer;
-import pt.ipbeja.app.model.*;
+import pt.ipbeja.app.model.RegularCell;
+import pt.ipbeja.app.model.Position;
+import pt.ipbeja.app.model.WSModel;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,13 +23,13 @@ class WSModelTest {
         WSModel model = new WSModel(BASE_PATH + "words.txt");
         this.registerEmptyView(model);
 
-        // Adicionar letras manualmente ao grid
+        // Add letters manually to the grid
         model.setCell(0, 0, new RegularCell('C'));
         model.setCell(0, 1, new RegularCell('A'));
         model.setCell(0, 2, new RegularCell('S'));
         model.setCell(0, 3, new RegularCell('A'));
 
-        assertEquals("CASA = 4 pontos", model.wordFound("CASA", 0, 0, true, false));
+        assertEquals("CASA = 4 pontos", model.wordFound("CASA", 0, 0, true, false, 0));
     }
 
     @Test
@@ -35,7 +37,7 @@ class WSModelTest {
         WSModel model = new WSModel(BASE_PATH + "words.txt");
         this.registerEmptyView(model);
 
-        // Adicionar letras manualmente ao grid
+        // Add letters manually to the grid
         model.setCell(0, 0, new RegularCell('M'));
         model.setCell(0, 1, new RegularCell('A'));
         model.setCell(0, 2, new RegularCell('*'));
@@ -49,7 +51,7 @@ class WSModelTest {
         WSModel model = new WSModel(BASE_PATH + "words.txt");
         this.registerEmptyView(model);
 
-        // Adicionar letras manualmente ao grid
+        // Add letters manually to the grid
         model.setCell(0, 0, new RegularCell('M'));
         model.setCell(0, 1, new RegularCell('A'));
         model.setCell(0, 2, new RegularCell('L'));
@@ -58,8 +60,8 @@ class WSModelTest {
         model.setCell(1, 0, new RegularCell('C'));
         model.setCell(1, 1, new RegularCell('A'));
 
-        model.wordFound("MALA", 0, 0, true, false);
-        model.wordFound("CA", 1, 0, true, false);
+        model.wordFound("MALA", 0, 0, true, false, 0);
+        model.wordFound("CA", 1, 0, true, false, 0);
 
         assertTrue(model.allWordsWereFound());
     }
@@ -69,7 +71,7 @@ class WSModelTest {
         WSModel model = new WSModel(BASE_PATH + "words.txt");
         this.registerEmptyView(model);
 
-        // Adicionar letras manualmente ao grid
+        // Add letters manually to the grid
         model.setCell(0, 0, new RegularCell('M'));
         model.setCell(0, 1, new RegularCell('A'));
         model.setCell(0, 2, new RegularCell('L'));
@@ -115,6 +117,8 @@ class WSModelTest {
     }
 
     private void registerEmptyView(WSModel model) {
+        // Registering an empty view, no arguments needed
         model.registerView();
     }
+
 }
