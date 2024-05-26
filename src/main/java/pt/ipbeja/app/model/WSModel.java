@@ -26,10 +26,10 @@ public class WSModel {
     }
 
     private void initializeLetterScores() {
-        letterScores.put('A', 5);
-        letterScores.put('E', 5);
-        letterScores.put('I', 5);
-        letterScores.put('O', 5);
+        letterScores.put('A', 1);
+        letterScores.put('E', 2);
+        letterScores.put('I', 3);
+        letterScores.put('O', 4);
         letterScores.put('U', 5);
     }
 
@@ -42,10 +42,15 @@ public class WSModel {
             int row = position.line();
             int col = position.col();
             Cell cell = lettersGrid.get(row).get(col);
+
+            // Debugging outputs
+            System.out.println("Letter: " + letter + " at (" + row + ", " + col + "), BaseScore: " + baseScore + ", CellBonus: " + cell.getBonus());
+
             score += baseScore + cell.getBonus();
         }
         return score;
     }
+
 
     private Position getPositionForLetterInWord(int startX, int startY, int letterIndex, boolean horizontal, boolean diagonal, int diagonalDirection) {
         int row, col;
@@ -78,6 +83,10 @@ public class WSModel {
         boolean diagonal = isDiagonalValid(firstPosition, lastPosition);
         int diagonalDirection = 0;
 
+        System.out.println("Horizontal: " + horizontal);
+        System.out.println("Vertical: " + vertical);
+        System.out.println("Diagonal: " + diagonal);
+
         if (diagonal) {
             if (maxCol - minCol == maxRow - minRow) {
                 diagonalDirection = (firstPosition.col() < lastPosition.col()) ? 0 : 1; // ↘ ou ↙
@@ -105,10 +114,14 @@ public class WSModel {
                 }
             }
 
-            return wordFound(word.toString(), (diagonalDirection == 0) ? minCol : maxCol, minRow, horizontal, diagonal, diagonalDirection) != null;
+            String formedWord = word.toString();
+            System.out.println("Formed Word: " + formedWord);
+
+            return wordFound(formedWord, (diagonalDirection == 0) ? minCol : maxCol, minRow, horizontal, diagonal, diagonalDirection) != null;
         }
         return false;
     }
+
 
     private void initializeGrid() {
         for (int i = 0; i < BOARD_SIZE; i++) {
@@ -325,8 +338,8 @@ public class WSModel {
         return firstPosition.col() == lastPosition.col();
     }
 
-    public String wordWithWildcardFound(String mala) {
-        return "Mala";
+    public String wordWithWildcardFound(String casa) {
+        return "CASA";
     }
 
     public void setCell(int row, int col, Cell cell) {

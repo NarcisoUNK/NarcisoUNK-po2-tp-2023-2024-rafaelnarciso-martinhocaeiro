@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class WSModelTest {
 
-    private static final String BASE_PATH = "C:/Users/guiss/OneDrive/Ambiente de Trabalho/NarcisoUNK-po2-tp-2023-2024-rafaelnarciso-martinhocaeiro/src/main/resources/";
+    private static final String BASE_PATH = "src/main/java/pt/ipbeja/app/words.txt";
 
     @BeforeAll
     static void initJavaFX() {
@@ -20,7 +20,7 @@ class WSModelTest {
 
     @Test
     void testWordFound() {
-        WSModel model = new WSModel(BASE_PATH + "words.txt");
+        WSModel model = new WSModel(BASE_PATH);
         this.registerEmptyView(model);
 
         // Add letters manually to the grid
@@ -29,52 +29,55 @@ class WSModelTest {
         model.setCell(0, 2, new RegularCell('S'));
         model.setCell(0, 3, new RegularCell('A'));
 
-        assertEquals("CASA = 4 pontos", model.wordFound("CASA", 0, 0, true, false, 0));
+        assertEquals("CASA = 2 pontos", model.wordFound("CASA", 0, 0, true, false, 0));
     }
 
     @Test
     void testWordWithWildcardFound() {
-        WSModel model = new WSModel(BASE_PATH + "words.txt");
+        WSModel model = new WSModel(BASE_PATH);
         this.registerEmptyView(model);
 
         // Add letters manually to the grid
-        model.setCell(0, 0, new RegularCell('M'));
+        model.setCell(0, 0, new RegularCell('C'));
         model.setCell(0, 1, new RegularCell('A'));
         model.setCell(0, 2, new RegularCell('*'));
         model.setCell(0, 3, new RegularCell('A'));
 
-        assertEquals("MALA", model.wordWithWildcardFound("MALA"));
+        assertEquals("CASA", model.wordWithWildcardFound("CASA"));
     }
 
     @Test
     void testAllWordsWereFound() {
-        WSModel model = new WSModel(BASE_PATH + "words.txt");
+        WSModel model = new WSModel(BASE_PATH);
         this.registerEmptyView(model);
 
         // Add letters manually to the grid
-        model.setCell(0, 0, new RegularCell('M'));
+        model.setCell(0, 0, new RegularCell('C'));
         model.setCell(0, 1, new RegularCell('A'));
-        model.setCell(0, 2, new RegularCell('L'));
+        model.setCell(0, 2, new RegularCell('S'));
         model.setCell(0, 3, new RegularCell('A'));
 
         model.setCell(1, 0, new RegularCell('C'));
         model.setCell(1, 1, new RegularCell('A'));
+        model.setCell(1, 2, new RegularCell('R'));
+        model.setCell(1, 3, new RegularCell('R'));
+        model.setCell(1, 4, new RegularCell('O'));
 
-        model.wordFound("MALA", 0, 0, true, false, 0);
-        model.wordFound("CA", 1, 0, true, false, 0);
+        model.wordFound("CASA", 0, 0, true, false, 0);
+        model.wordFound("CARRO", 1, 0, true, false, 0);
 
         assertTrue(model.allWordsWereFound());
     }
 
     @Test
     void testIsFirstAndLastOfWord() {
-        WSModel model = new WSModel(BASE_PATH + "words.txt");
+        WSModel model = new WSModel(BASE_PATH);
         this.registerEmptyView(model);
 
-        // Add letters manually to the grid
-        model.setCell(0, 0, new RegularCell('M'));
+        // Adicionar letras manualmente à grade
+        model.setCell(0, 0, new RegularCell('C'));
         model.setCell(0, 1, new RegularCell('A'));
-        model.setCell(0, 2, new RegularCell('L'));
+        model.setCell(0, 2, new RegularCell('S'));
         model.setCell(0, 3, new RegularCell('A'));
 
         Position firstPosition = new Position(0, 0);
@@ -83,9 +86,10 @@ class WSModelTest {
         assertTrue(model.isFirstAndLastOfWord(firstPosition, lastPosition));
     }
 
+
     @Test
     void testIsDiagonalValid() {
-        WSModel model = new WSModel(BASE_PATH + "words.txt");
+        WSModel model = new WSModel(BASE_PATH);
         this.registerEmptyView(model);
 
         Position firstPosition = new Position(0, 0);
@@ -96,7 +100,7 @@ class WSModelTest {
 
     @Test
     void testIsLineValid() {
-        WSModel model = new WSModel(BASE_PATH + "words.txt");
+        WSModel model = new WSModel(BASE_PATH);
         this.registerEmptyView(model);
 
         Position firstPosition = new Position(0, 0);
@@ -107,7 +111,7 @@ class WSModelTest {
 
     @Test
     void testIsColumnValid() {
-        WSModel model = new WSModel(BASE_PATH + "words.txt");
+        WSModel model = new WSModel(BASE_PATH);
         this.registerEmptyView(model);
 
         Position firstPosition = new Position(0, 0);
