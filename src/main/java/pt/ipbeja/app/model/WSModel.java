@@ -14,10 +14,12 @@ public class WSModel {
     private final List<String> words = new ArrayList<>();
     private final Set<String> foundWords = new HashSet<>();
     private final Map<Character, Integer> letterScores = new HashMap<>();
+    private final boolean withDiagonals;
 
-    public WSModel(String filePath) {
+    public WSModel(String filePath, boolean withDiagonals) {
         this.lettersGrid = new ArrayList<>();
         this.buttonGrid = new ArrayList<>();
+        this.withDiagonals = withDiagonals;
         initializeGrid();
         initializeButtonGrid();
         readWordsFromFile(filePath);
@@ -33,7 +35,7 @@ public class WSModel {
         letterScores.put('U', 5);
     }
 
-    private int calculateWordScore(String word, int startX, int startY, boolean horizontal, boolean diagonal, int diagonalDirection) {
+    private int wordWithWildcardFound(String word, int startX, int startY, boolean horizontal, boolean diagonal, int diagonalDirection) {
         int score = 0;
         for (int i = 0; i < word.length(); i++) {
             char letter = word.charAt(i);
@@ -42,9 +44,6 @@ public class WSModel {
             int row = position.line();
             int col = position.col();
             Cell cell = lettersGrid.get(row).get(col);
-
-            // Debugging outputs
-            System.out.println("Letter: " + letter + " at (" + row + ", " + col + "), BaseScore: " + baseScore + ", CellBonus: " + cell.getBonus());
 
             score += baseScore + cell.getBonus();
         }
@@ -209,32 +208,32 @@ public class WSModel {
             int startX = random.nextInt(BOARD_SIZE);
             int startY = random.nextInt(BOARD_SIZE);
             int diagonalDirection = random.nextInt(2);
-            if (canPlaceWordAtPosition(word, startX, startY, horizontal, diagonalDirection)) {
-                distributeWord(word, startX, startY, horizontal, diagonalDirection);
-                placed = true;
+            if (withDiagonals) {
+                if (canPlaceWordAtPosition(word, startX, startY, horizontal, diagonalDirection)) {
+                    distributeWord(word, startX, startY, horizontal, diagonalDirection);
+                    placed = true;
+                }
+            } else {
+                if (canPlaceWordAtPosition(word, startX, startY, horizontal, -1)) {
+                    distributeWord(word, startX, startY, horizontal, -1);
+                    placed = true;
+                }
             }
         }
     }
 
     private void distributeWord(String word, int startX, int startY, boolean horizontal, int diagonalDirection) {
-        int wordLength = word.length();
-        for (int j = 0; j < wordLength; j++) {
-            int col, row;
+        for (int j = 0; j < word.length(); j++) {
             if (horizontal) {
-                col = startX + j;
-                row = startY;
-            } else if (diagonalDirection == 0) {
-                col = startX + j;
-                row = startY + j;
+                lettersGrid.get(startY).set(startX + j, new Cell(word.charAt(j)));
             } else {
-                col = startX - j;
-                row = startY + j;
-            }
-            // Alterna entre RegularCell e BonusCell com base em alguma condição
-            if (Math.random() < 0.2) {
-                lettersGrid.get(row).set(col, new BonusCell(word.charAt(j), 5));
-            } else {
-                lettersGrid.get(row).set(col, new RegularCell(word.charAt(j)));
+                if (diagonalDirection == 0) {
+                    lettersGrid.get(startY + j).set(startX + j, new Cell(word.charAt(j)));
+                } else if (diagonalDirection == 1) {
+                    lettersGrid.get(startY + j).set(startX - j, new Cell(word.charAt(j)));
+                } else {
+                    lettersGrid.get(startY + j).set(startX, new Cell(word.charAt(j)));
+                }
             }
         }
     }
@@ -278,7 +277,8 @@ public class WSModel {
     public String wordFound(String word, int startX, int startY, boolean horizontal, boolean diagonal, int diagonalDirection) {
         if (words.contains(word) && !foundWords.contains(word)) {
             foundWords.add(word);
-            int wordScore = calculateWordScore(word, startX, startY, horizontal, diagonal, diagonalDirection);
+
+            int wordScore = wordWithWildcardFound(word, startX, startY, horizontal, diagonal, diagonalDirection);
 
             // Verifica se todas as palavras foram encontradas
             if (allWordsWereFound()) {
@@ -336,10 +336,6 @@ public class WSModel {
 
     public boolean isColumnValid(Position firstPosition, Position lastPosition) {
         return firstPosition.col() == lastPosition.col();
-    }
-
-    public String wordWithWildcardFound(String casa) {
-        return "CASA";
     }
 
     public void setCell(int row, int col, Cell cell) {
