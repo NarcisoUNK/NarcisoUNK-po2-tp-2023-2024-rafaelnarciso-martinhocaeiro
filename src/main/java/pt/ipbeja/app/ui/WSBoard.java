@@ -16,11 +16,13 @@ public class WSBoard extends BorderPane implements WSView {
     private static final int SQUARE_SIZE = 80;
     private Button firstButtonClicked;
     private final TextArea movesTextArea;
-    private final Label bonusScoreLabel = new Label();
+    private final Label bonusScoreLabel = new Label("Score: 0");  // Initialize with default text
+    private final Label wordsListLabel;  // Label to display the list of words
 
     public WSBoard(WSModel wsModel) {
         this.wsModel = wsModel;
         this.movesTextArea = new TextArea();
+        this.wordsListLabel = new Label(wsModel.generateWordsList());  // Initialize with the words list
         this.buildGUI();
     }
 
@@ -45,8 +47,15 @@ public class WSBoard extends BorderPane implements WSView {
         rightPane.setPadding(new Insets(10));
         rightPane.setAlignment(Pos.TOP_LEFT);
 
+        VBox leftPane = new VBox();  // Add a VBox for the left pane
+        leftPane.getChildren().addAll(wordsListLabel);
+        leftPane.setSpacing(10);
+        leftPane.setPadding(new Insets(10));
+        leftPane.setAlignment(Pos.TOP_LEFT);
+
         this.setCenter(gridPane);
         this.setRight(rightPane);
+        this.setLeft(leftPane);  // Add the left pane to the border pane
         this.requestFocus();
     }
 
@@ -98,7 +107,6 @@ public class WSBoard extends BorderPane implements WSView {
 
         StringBuilder wordBuilder = new StringBuilder();
         StringBuilder positionsBuilder = new StringBuilder();
-        int bonusScore = 0;
 
         boolean isDiagonal = (maxRow - minRow) == (maxCol - minCol) || (maxRow - minRow) == (minCol - maxCol);
         int diagonalDirection = (firstPosition.col() < secondPosition.col()) ? 0 : 1;
@@ -112,9 +120,10 @@ public class WSBoard extends BorderPane implements WSView {
                 Button button = getButton(row, col);
                 Cell cell = wsModel.getCell(new Position(row, col));
                 if (cell instanceof BonusCell) {
-                    bonusScore += ((BonusCell) cell).getBonus();
+                    button.setStyle("-fx-background-color: orange");
+                } else {
+                    button.setStyle("-fx-background-color: lightgreen");
                 }
-                button.setStyle("-fx-background-color: lightgreen");
                 wordBuilder.append(button.getText());
                 positionsBuilder.append(String.format("(%d, %s) -> %s\n", row + 1, (char) ('A' + col), button.getText()));
                 row += rowIncrement;
@@ -125,9 +134,10 @@ public class WSBoard extends BorderPane implements WSView {
                 Button button = getButton(firstPosition.line(), col);
                 Cell cell = wsModel.getCell(new Position(firstPosition.line(), col));
                 if (cell instanceof BonusCell) {
-                    bonusScore += ((BonusCell) cell).getBonus();
+                    button.setStyle("-fx-background-color: orange");
+                } else {
+                    button.setStyle("-fx-background-color: lightgreen");
                 }
-                button.setStyle("-fx-background-color: lightgreen");
                 wordBuilder.append(button.getText());
                 positionsBuilder.append(String.format("(%d, %s) -> %s\n", firstPosition.line() + 1, (char) ('A' + col), button.getText()));
             }
@@ -136,9 +146,10 @@ public class WSBoard extends BorderPane implements WSView {
                 Button button = getButton(row, firstPosition.col());
                 Cell cell = wsModel.getCell(new Position(row, firstPosition.col()));
                 if (cell instanceof BonusCell) {
-                    bonusScore += ((BonusCell) cell).getBonus();
+                    button.setStyle("-fx-background-color: orange");
+                } else {
+                    button.setStyle("-fx-background-color: lightgreen");
                 }
-                button.setStyle("-fx-background-color: lightgreen");
                 wordBuilder.append(button.getText());
                 positionsBuilder.append(String.format("(%d, %s) -> %s\n", row + 1, (char) ('A' + firstPosition.col()), button.getText()));
             }
@@ -151,8 +162,19 @@ public class WSBoard extends BorderPane implements WSView {
 
         movesTextArea.appendText(positionsBuilder.toString());
         movesTextArea.setScrollTop(Double.MAX_VALUE);
-        bonusScoreLabel.setText("Bónus: " + bonusScore);
+
+        // Update the label text to remove the found word
+        String currentLabelText = wordsListLabel.getText();
+        String updatedLabelText = currentLabelText.replace(foundWord, "").trim();
+        wordsListLabel.setText(updatedLabelText);
+
+        // Update the score label
+        bonusScoreLabel.setText("Score: " + wsModel.getTotalScore());
+
+        firstButtonClicked = null;
     }
+
+
 
     @Override
     public void update(MessageToUI messageToUI) {

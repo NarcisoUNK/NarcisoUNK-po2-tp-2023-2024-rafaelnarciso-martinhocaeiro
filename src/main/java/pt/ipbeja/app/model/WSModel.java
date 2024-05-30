@@ -11,6 +11,7 @@ public class WSModel {
     private final List<List<Cell>> lettersGrid;
     private final List<List<Button>> buttonGrid;
     private static final int BOARD_SIZE = 10;
+    private int totalScore = 0;
     private final List<String> words = new ArrayList<>();
     private final Set<String> foundWords = new HashSet<>();
     private final Map<Character, Integer> letterScores = new HashMap<>();
@@ -34,7 +35,12 @@ public class WSModel {
         letterScores.put('O', 4);
         letterScores.put('U', 5);
     }
-
+    public int getTotalScore() {
+        return totalScore;
+    }
+    public void addToTotalScore(int score) {
+        totalScore += score;
+    }
     private int wordWithWildcardFound(String word, int startX, int startY, boolean horizontal, boolean diagonal, int diagonalDirection) {
         int score = 0;
         for (int i = 0; i < word.length(); i++) {
@@ -44,8 +50,10 @@ public class WSModel {
             int row = position.line();
             int col = position.col();
             Cell cell = lettersGrid.get(row).get(col);
-
+            System.out.println("Bonus Score" + cell.getBonus() );
+            System.out.println("Base Score"+ baseScore);
             score += baseScore + cell.getBonus();
+            System.out.println("Score of the word" + score);
         }
         return score;
     }
@@ -223,20 +231,30 @@ public class WSModel {
     }
 
     private void distributeWord(String word, int startX, int startY, boolean horizontal, int diagonalDirection) {
+        Random random = new Random();
         for (int j = 0; j < word.length(); j++) {
+            char letter = word.charAt(j);
+            Cell cell;
+            if (random.nextDouble() < 0.2) {
+                cell = new BonusCell(letter, 5); // Assign a BonusCell with a 20% probability
+            } else {
+                cell = new RegularCell(letter); // Assign a RegularCell with an 80% probability
+            }
+
             if (horizontal) {
-                lettersGrid.get(startY).set(startX + j, new Cell(word.charAt(j)));
+                lettersGrid.get(startY).set(startX + j, cell);
             } else {
                 if (diagonalDirection == 0) {
-                    lettersGrid.get(startY + j).set(startX + j, new Cell(word.charAt(j)));
+                    lettersGrid.get(startY + j).set(startX + j, cell);
                 } else if (diagonalDirection == 1) {
-                    lettersGrid.get(startY + j).set(startX - j, new Cell(word.charAt(j)));
+                    lettersGrid.get(startY + j).set(startX - j, cell);
                 } else {
-                    lettersGrid.get(startY + j).set(startX, new Cell(word.charAt(j)));
+                    lettersGrid.get(startY + j).set(startX, cell);
                 }
             }
         }
     }
+
 
     private void fillRemainingPositionsRandomly() {
         Random random = new Random();
@@ -270,7 +288,7 @@ public class WSModel {
         return String.valueOf(cell.getLetter());
     }
 
-    public boolean allWordsWereFound() {
+    public boolean allWordsWereFound(   ) {
         return foundWords.size() == words.size();
     }
 
@@ -279,7 +297,7 @@ public class WSModel {
             foundWords.add(word);
 
             int wordScore = wordWithWildcardFound(word, startX, startY, horizontal, diagonal, diagonalDirection);
-
+            addToTotalScore(wordScore);
             // Verifica se todas as palavras foram encontradas
             if (allWordsWereFound()) {
                 String scoreMessage = getScoreMessage();
@@ -292,7 +310,13 @@ public class WSModel {
             return null;
         }
     }
-
+    public String generateWordsList() {
+        StringBuilder wordsList = new StringBuilder("Words to Find:\n");
+        for (String word : words) {
+            wordsList.append(word).append("\n");
+        }
+        return wordsList.toString();
+    }
     private void showAlertAndExit(String message) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
