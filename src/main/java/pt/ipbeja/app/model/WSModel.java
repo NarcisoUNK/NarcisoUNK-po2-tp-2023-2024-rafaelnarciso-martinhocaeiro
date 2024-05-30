@@ -50,10 +50,7 @@ public class WSModel {
             int row = position.line();
             int col = position.col();
             Cell cell = lettersGrid.get(row).get(col);
-            System.out.println("Bonus Score" + cell.getBonus() );
-            System.out.println("Base Score"+ baseScore);
             score += baseScore + cell.getBonus();
-            System.out.println("Score of the word" + score);
         }
         return score;
     }
@@ -90,10 +87,6 @@ public class WSModel {
         boolean diagonal = isDiagonalValid(firstPosition, lastPosition);
         int diagonalDirection = 0;
 
-        System.out.println("Horizontal: " + horizontal);
-        System.out.println("Vertical: " + vertical);
-        System.out.println("Diagonal: " + diagonal);
-
         if (diagonal) {
             if (maxCol - minCol == maxRow - minRow) {
                 diagonalDirection = (firstPosition.col() < lastPosition.col()) ? 0 : 1; // ↘ ou ↙
@@ -101,33 +94,41 @@ public class WSModel {
         }
 
         if (horizontal || vertical || diagonal) {
-            StringBuilder word = new StringBuilder();
+            String formedWord = buildWord(minRow, maxRow, minCol, maxCol, diagonalDirection);
 
-            if (horizontal) {
-                for (int col = minCol; col <= maxCol; col++) {
-                    word.append(this.textInPosition(new Position(minRow, col)));
-                }
-            } else if (vertical) {
-                for (int row = minRow; row <= maxRow; row++) {
-                    word.append(this.textInPosition(new Position(row, minCol)));
-                }
-            } else {
-                int row = minRow;
-                int col = (diagonalDirection == 0) ? minCol : maxCol;
-                while (row <= maxRow) {
-                    word.append(this.textInPosition(new Position(row, col)));
-                    row++;
-                    col = (diagonalDirection == 0) ? col + 1 : col - 1;
-                }
-            }
-
-            String formedWord = word.toString();
-            System.out.println("Formed Word: " + formedWord);
-
-            return wordFound(formedWord, (diagonalDirection == 0) ? minCol : maxCol, minRow, horizontal, diagonal, diagonalDirection) != null;
+            return isWordValid(formedWord, (diagonalDirection == 0) ? minCol : maxCol, minRow, horizontal, diagonal, diagonalDirection);
         }
         return false;
     }
+
+    private String buildWord(int minRow, int maxRow, int minCol, int maxCol, int diagonalDirection) {
+        StringBuilder word = new StringBuilder();
+
+        if (minRow == maxRow) { // Horizontal
+            for (int col = minCol; col <= maxCol; col++) {
+                word.append(this.textInPosition(new Position(minRow, col)));
+            }
+        } else if (minCol == maxCol) { // Vertical
+            for (int row = minRow; row <= maxRow; row++) {
+                word.append(this.textInPosition(new Position(row, minCol)));
+            }
+        } else { // Diagonal
+            int row = minRow;
+            int col = (diagonalDirection == 0) ? minCol : maxCol;
+            while (row <= maxRow) {
+                word.append(this.textInPosition(new Position(row, col)));
+                row++;
+                col = (diagonalDirection == 0) ? col + 1 : col - 1;
+            }
+        }
+
+        return word.toString();
+    }
+
+    private boolean isWordValid(String formedWord, int col, int row, boolean horizontal, boolean diagonal, int diagonalDirection) {
+        return wordFound(formedWord, col, row, horizontal, diagonal, diagonalDirection) != null;
+    }
+
 
 
     private void initializeGrid() {
@@ -311,7 +312,7 @@ public class WSModel {
         }
     }
     public String generateWordsList() {
-        StringBuilder wordsList = new StringBuilder("Words to Find:\n");
+        StringBuilder wordsList = new StringBuilder("Palavras a encontrar:\n");
         for (String word : words) {
             wordsList.append(word).append("\n");
         }
@@ -320,7 +321,7 @@ public class WSModel {
     private void showAlertAndExit(String message) {
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Game Over");
+            alert.setTitle("Fim de jogo");
             alert.setHeaderText(null);
             alert.setContentText(message);
             alert.showAndWait();
@@ -336,7 +337,7 @@ public class WSModel {
         int totalWords = words.size();
         int foundWordsCount = foundWords.size();
         double score = ((double) foundWordsCount / totalWords) * 100;
-        return String.format("Words Found: %d/%d (%.2f%%)", foundWordsCount, totalWords, score);
+        return String.format("Palavras encontradas: %d/%d (%.2f%%)", foundWordsCount, totalWords, score);
     }
 
     public void writeScoreToFile() {

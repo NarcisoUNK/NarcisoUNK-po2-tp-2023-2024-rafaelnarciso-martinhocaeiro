@@ -82,7 +82,7 @@ public class StartWordSearch extends Application {
      */
     private VBox createMainLayout(VBox buttonBox) {
         Label titleLabel = new Label("Sopa de Letras");
-        titleLabel.setStyle("-fx-font-size: 30px;");
+        titleLabel.setStyle("-fx-font-size: 40px;");
 
         Label authorLabel = new Label("Feito por Martinho Caeiro (23917) e Rafael Narciso (24473)");
         authorLabel.setStyle("-fx-font-size: 10px;");

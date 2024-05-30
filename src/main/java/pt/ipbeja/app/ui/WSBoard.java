@@ -16,7 +16,7 @@ public class WSBoard extends BorderPane implements WSView {
     private static final int SQUARE_SIZE = 80;
     private Button firstButtonClicked;
     private final TextArea movesTextArea;
-    private final Label bonusScoreLabel = new Label("Score: 0");  // Initialize with default text
+    private final Label bonusScoreLabel = new Label("Pontuação: 0");  // Initialize with default text
     private final Label wordsListLabel;  // Label to display the list of words
 
     public WSBoard(WSModel wsModel) {
@@ -42,7 +42,7 @@ public class WSBoard extends BorderPane implements WSView {
         movesTextArea.setPrefWidth(300);
 
         VBox rightPane = new VBox();
-        rightPane.getChildren().addAll(new Label("Jogadas Efetuadas"), movesTextArea, bonusScoreLabel);
+        rightPane.getChildren().addAll(new Label("Jogadas Efetuadas:"), movesTextArea, bonusScoreLabel);
         rightPane.setSpacing(10);
         rightPane.setPadding(new Insets(10));
         rightPane.setAlignment(Pos.TOP_LEFT);
@@ -112,69 +112,86 @@ public class WSBoard extends BorderPane implements WSView {
         int diagonalDirection = (firstPosition.col() < secondPosition.col()) ? 0 : 1;
 
         if (isDiagonal) {
-            int rowIncrement = firstPosition.line() < secondPosition.line() ? 1 : -1;
-            int colIncrement = (diagonalDirection == 0) ? 1 : -1;
-            int row = firstPosition.line();
-            int col = firstPosition.col();
-            while (row != secondPosition.line() + rowIncrement && col != secondPosition.col() + colIncrement) {
-                Button button = getButton(row, col);
-                Cell cell = wsModel.getCell(new Position(row, col));
-                if (cell.getBonus() > 0) {
-                    button.setStyle("-fx-background-color: orange");
-                } else {
-                    button.setStyle("-fx-background-color: lightgreen");
-                }
-                wordBuilder.append(button.getText());
-                positionsBuilder.append(String.format("(%d, %s) -> %s\n", row + 1, (char) ('A' + col), button.getText()));
-                row += rowIncrement;
-                col += colIncrement;
-            }
+            highlightDiagonalWord(firstPosition, secondPosition, wordBuilder, positionsBuilder, diagonalDirection);
         } else if (firstPosition.line() == secondPosition.line()) {
-            for (int col = minCol; col <= maxCol; col++) {
-                Button button = getButton(firstPosition.line(), col);
-                Cell cell = wsModel.getCell(new Position(firstPosition.line(), col));
-                if (cell.getBonus() > 0) {
-                    button.setStyle("-fx-background-color: orange");
-                } else {
-                    button.setStyle("-fx-background-color: lightgreen");
-                }
-                wordBuilder.append(button.getText());
-                positionsBuilder.append(String.format("(%d, %s) -> %s\n", firstPosition.line() + 1, (char) ('A' + col), button.getText()));
-            }
+            highlightHorizontalWord(firstPosition, minCol, maxCol, wordBuilder, positionsBuilder);
         } else {
-            for (int row = minRow; row <= maxRow; row++) {
-                Button button = getButton(row, firstPosition.col());
-                Cell cell = wsModel.getCell(new Position(row, firstPosition.col()));
-                if (cell.getBonus() > 0) {
-                    button.setStyle("-fx-background-color: orange");
-                } else {
-                    button.setStyle("-fx-background-color: lightgreen");
-                }
-                wordBuilder.append(button.getText());
-                positionsBuilder.append(String.format("(%d, %s) -> %s\n", row + 1, (char) ('A' + firstPosition.col()), button.getText()));
-            }
+            highlightVerticalWord(firstPosition, minRow, maxRow, wordBuilder, positionsBuilder);
         }
 
         String foundWord = wordBuilder.toString();
+        appendToMovesTextArea(positionsBuilder, foundWord, firstPosition, secondPosition);
+
+        updateWordsListLabel(foundWord);
+
+        updateScoreLabel();
+    }
+
+    private void highlightDiagonalWord(Position firstPosition, Position secondPosition, StringBuilder wordBuilder, StringBuilder positionsBuilder, int diagonalDirection) {
+        int rowIncrement = firstPosition.line() < secondPosition.line() ? 1 : -1;
+        int colIncrement = (diagonalDirection == 0) ? 1 : -1;
+        int row = firstPosition.line();
+        int col = firstPosition.col();
+        while (row != secondPosition.line() + rowIncrement && col != secondPosition.col() + colIncrement) {
+            Button button = getButton(row, col);
+            Cell cell = wsModel.getCell(new Position(row, col));
+            highlightButton(button, cell);
+            wordBuilder.append(button.getText());
+            appendPositionInfo(positionsBuilder, row, col, button.getText());
+            row += rowIncrement;
+            col += colIncrement;
+        }
+    }
+
+    private void highlightHorizontalWord(Position firstPosition, int minCol, int maxCol, StringBuilder wordBuilder, StringBuilder positionsBuilder) {
+        for (int col = minCol; col <= maxCol; col++) {
+            Button button = getButton(firstPosition.line(), col);
+            Cell cell = wsModel.getCell(new Position(firstPosition.line(), col));
+            highlightButton(button, cell);
+            wordBuilder.append(button.getText());
+            appendPositionInfo(positionsBuilder, firstPosition.line(), col, button.getText());
+        }
+    }
+
+    private void highlightVerticalWord(Position firstPosition, int minRow, int maxRow, StringBuilder wordBuilder, StringBuilder positionsBuilder) {
+        for (int row = minRow; row <= maxRow; row++) {
+            Button button = getButton(row, firstPosition.col());
+            Cell cell = wsModel.getCell(new Position(row, firstPosition.col()));
+            highlightButton(button, cell);
+            wordBuilder.append(button.getText());
+            appendPositionInfo(positionsBuilder, row, firstPosition.col(), button.getText());
+        }
+    }
+
+    private void highlightButton(Button button, Cell cell) {
+        if (cell.getBonus() > 0) {
+            button.setStyle("-fx-background-color: orange");
+        } else {
+            button.setStyle("-fx-background-color: lightgreen");
+        }
+    }
+
+    private void appendPositionInfo(StringBuilder positionsBuilder, int row, int col, String buttonText) {
+        positionsBuilder.append(String.format("(%d, %s) -> %s\n", row + 1, (char) ('A' + col), buttonText));
+    }
+
+    private void appendToMovesTextArea(StringBuilder positionsBuilder, String foundWord, Position firstPosition, Position secondPosition) {
         positionsBuilder.append(String.format("\"%s\" (%d, %s) to (%d, %s)\n",
                 foundWord, firstPosition.line() + 1, (char) ('A' + firstPosition.col()),
                 secondPosition.line() + 1, (char) ('A' + secondPosition.col())));
-
         movesTextArea.appendText(positionsBuilder.toString());
         movesTextArea.setScrollTop(Double.MAX_VALUE);
+    }
 
-        // Update the label text to remove the found word
+    private void updateWordsListLabel(String foundWord) {
         String currentLabelText = wordsListLabel.getText();
         String updatedLabelText = currentLabelText.replace(foundWord, "").trim();
         wordsListLabel.setText(updatedLabelText);
-
-        // Update the score label
-        bonusScoreLabel.setText("Score: " + wsModel.getTotalScore());
-
-        firstButtonClicked = null;
     }
 
-
+    private void updateScoreLabel() {
+        bonusScoreLabel.setText("Pontuação: " + wsModel.getTotalScore());
+    }
 
 
     @Override
@@ -187,7 +204,7 @@ public class WSBoard extends BorderPane implements WSView {
         }
         if (this.wsModel.allWordsWereFound()) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Game Over");
+            alert.setTitle("Fim de Jogo");
             alert.setHeaderText(null);
             alert.setContentText(messageToUI.message());
             alert.showAndWait();
