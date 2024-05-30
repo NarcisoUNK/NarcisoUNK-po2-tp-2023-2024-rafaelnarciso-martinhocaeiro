@@ -1,15 +1,21 @@
 package pt.ipbeja.app.model;
+
 /**
- * Position in the board
+ * Position in the board.
+ * Represents a position with a line and column.
  *
- * @author anonymized
- * @version 2024/04/14
+ * @version 30/05/2024
+ * @authors Martinho Caeiro (23917) and Rafael Narciso (24473)
  */
 public record Position(int line, int col) {
 
+    /**
+     * Returns a string representation of the position.
+     *
+     * @return the line and column as a string
+     */
     @Override
     public String toString() {
         return line + ", " + col;
     }
-
 }
