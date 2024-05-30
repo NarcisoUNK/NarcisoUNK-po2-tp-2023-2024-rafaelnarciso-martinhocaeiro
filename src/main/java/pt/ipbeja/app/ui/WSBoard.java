@@ -119,7 +119,7 @@ public class WSBoard extends BorderPane implements WSView {
             while (row != secondPosition.line() + rowIncrement && col != secondPosition.col() + colIncrement) {
                 Button button = getButton(row, col);
                 Cell cell = wsModel.getCell(new Position(row, col));
-                if (cell instanceof BonusCell) {
+                if (cell.getBonus() > 0) {
                     button.setStyle("-fx-background-color: orange");
                 } else {
                     button.setStyle("-fx-background-color: lightgreen");
@@ -133,7 +133,7 @@ public class WSBoard extends BorderPane implements WSView {
             for (int col = minCol; col <= maxCol; col++) {
                 Button button = getButton(firstPosition.line(), col);
                 Cell cell = wsModel.getCell(new Position(firstPosition.line(), col));
-                if (cell instanceof BonusCell) {
+                if (cell.getBonus() > 0) {
                     button.setStyle("-fx-background-color: orange");
                 } else {
                     button.setStyle("-fx-background-color: lightgreen");
@@ -145,7 +145,7 @@ public class WSBoard extends BorderPane implements WSView {
             for (int row = minRow; row <= maxRow; row++) {
                 Button button = getButton(row, firstPosition.col());
                 Cell cell = wsModel.getCell(new Position(row, firstPosition.col()));
-                if (cell instanceof BonusCell) {
+                if (cell.getBonus() > 0) {
                     button.setStyle("-fx-background-color: orange");
                 } else {
                     button.setStyle("-fx-background-color: lightgreen");
@@ -173,6 +173,7 @@ public class WSBoard extends BorderPane implements WSView {
 
         firstButtonClicked = null;
     }
+
 
 
 
