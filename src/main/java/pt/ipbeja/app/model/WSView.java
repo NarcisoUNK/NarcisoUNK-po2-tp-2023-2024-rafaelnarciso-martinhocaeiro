@@ -4,7 +4,7 @@ package pt.ipbeja.app.model;
  * View interface for the application.
  * Defines a method to update the view with a message.
  *
- * @version 30/05/2024
+ * @version 31/05/2024 (Final)
  * @authors Martinho Caeiro (23917) and Rafael Narciso (24473)
  */
 public interface WSView {

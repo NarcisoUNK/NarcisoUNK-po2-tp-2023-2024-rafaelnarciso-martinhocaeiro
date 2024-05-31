@@ -19,12 +19,12 @@ import static org.junit.jupiter.api.Assertions.*;
  * WSModelTest class.
  * Tests all the main functions in the game.
  *
- * @version 30/05/2024
+ * @version 31/05/2024 (Final)
  *  * @authors Martinho Caeiro (23917) and Rafael Narciso (24473)
  */
 class WSModelTest {
 
-    private static final String path = "src/main/java/pt/ipbeja/app/words.txt";
+    private static final String path = "levelfiles/words.txt";
 
     /**
      * Initializes JavaFX before all tests.
@@ -54,6 +54,10 @@ class WSModelTest {
 
     /**
      * Tests if a word with wildcard can be found in the model.
+     * Note: If the test fails it means that a random bonus was added to a certain letter
+     * in the word, changing the score, if it passes it means no aditional bonus was added to the word,
+     * only the normal letter wildcard score. Due to this randomness in the bonus it was not possible
+     * to make the test pass 100% of the time, even though the logic is correct.
      *
      * @throws IOException if an I/O error occurs
      */

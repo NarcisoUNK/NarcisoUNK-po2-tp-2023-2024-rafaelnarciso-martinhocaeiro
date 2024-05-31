@@ -1,10 +1,10 @@
 package pt.ipbeja.app.model;
 
 /**
- * Cell in the board.
- * Contains a letter and a bonus associated with the cell.
+ * Cell class.
+ * Represents a cell with an associated letter and bonus.
  *
- * @version 30/05/2024
+ * @version 31/05/2024 (Final)
  * @authors Martinho Caeiro (23917) and Rafael Narciso (24473)
  */
 public class Cell {

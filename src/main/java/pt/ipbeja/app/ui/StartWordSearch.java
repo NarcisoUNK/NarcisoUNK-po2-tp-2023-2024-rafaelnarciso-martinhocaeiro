@@ -22,7 +22,7 @@ import java.io.File;
  * StartWordSearch class.
  * The main UI for the word search application.
  *
- * @version 30/05/2024
+ * @version 31/05/2024 (Final)
  * @authors Martinho Caeiro (23917) and Rafael Narciso (24473)
  */
 public class StartWordSearch extends Application {
@@ -30,6 +30,11 @@ public class StartWordSearch extends Application {
     private Stage primaryStage;
     private Scene initialScene;
 
+    /**
+     * Initializes the primary Stage
+     *
+     * @param primaryStage the stage that houses the menu
+     */
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
