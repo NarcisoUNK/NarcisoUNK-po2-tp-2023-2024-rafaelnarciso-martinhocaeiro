@@ -105,3 +105,5 @@ This project implements a clickable crossword-like game using JavaFX for the UI.
   - Create a feature/fix branch
   - Submit a pull request with a clear description and testing steps
     
+## License
+- This repository is licensed under the GNU General Public License v3.0 (GPL-3.0).
